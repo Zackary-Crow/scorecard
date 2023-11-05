@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from django.template.loader import get_template
-from .scanForm import scanData , docFind, warpDocument
+from .scanForm import docFind, warpDocument
 
 class CameraConsumer(WebsocketConsumer):
     def connect(self):
