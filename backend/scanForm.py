@@ -1,8 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
-import os
-import math
 import base64
 def docFind(imgData):
     bimg = base64.b64decode(imgData); 
