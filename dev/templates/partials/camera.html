@@ -1,0 +1,53 @@
+
+
+<div id="modals-here"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1"
+    hx-swap-oob="innerHTML"
+    >
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<button id="photoButton" onclick='initCamera();cameraModal.style.display = "block";'>Take a Photo</button>
+        <div id="camera-modal" class="modal" hx-ext="ws" ws-connect="/ws/camera">
+          <div class="modal-content">
+            <h2>Camera</h2>
+            <canvas id="photo-canvas" style="display: none;"></canvas>
+            <video id="camera-feed" autoplay></video>
+            <button id="close-camera" onclick="cameraModal.style.display ='none'; clearInterval(inter)">Close</button>
+            <button id='take-photo' onclick="capturePhoto()" hx-trigger='imageCap from:document' hx-vals='js:{"test": capturePhoto()}' ws-send>Take Photo</button>
+          </div>
+        </div>
+
+        <script>
+            
+            let mediaStream; // Declare mediaStream variable
+            let imageCapture;
+            let inter;
+            const cameraFeed = document.querySelector("#camera-feed")
+            const cameraModal = document.querySelector('#camera-modal')
+            const photoCanvas = document.querySelector('#photo-canvas')
+        
+            function initCamera() {
+                navigator.mediaDevices.getUserMedia({video: true})
+                .then(mediaStream => {
+                    cameraFeed.srcObject = mediaStream;
+                });
+                inter = setInterval(()=>{document.dispatchEvent(new CustomEvent("imageCap"))},500)
+            } 
+            function capturePhoto() {
+                const context = photoCanvas.getContext('2d');
+                photoCanvas.width = cameraFeed.videoWidth;
+                photoCanvas.height = cameraFeed.videoHeight;
+                context.drawImage(cameraFeed, 0, 0, cameraFeed.videoWidth, cameraFeed.videoHeight);
+                return photoCanvas.toDataURL()
+            }
+
+            
+            
+               
+            </script>

@@ -1,0 +1,87 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <header class="banner">
+      <div class="logoNtitle">
+        <img class="img1" src="../static/images/SEDRA.png" />
+        <p>Scorecard<br />Scanner</p>
+      </div>
+      <div class="link-container">
+        <a class="link" href="https://www.distanceriding.org/">Home</a>
+        <a class="link" href="https://www.distanceriding.org/">How It Works</a>
+        <a class="link" href="https://www.distanceriding.org/">About Us</a>
+      </div>
+      <div class="button-container">
+        <button
+          onclick=" let t = body.classList.toggle('dark-mode');
+                    if(t) this.textContent='Light Mode'; 
+                    else this.textContent='Dark Mode'"
+          id="light-dark"
+          style="border-radius: 10px"
+          ;
+        >
+          Dark Mode
+        </button>
+      </div>
+    </header>
+    <br />
+    <div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
+    <br />
+    <div class="miniheader">Upload or snap a photo of it below!</div>
+    <br /><br />
+
+    <div style="margin: auto; width: 50%; text-align: center">
+      <a
+        href="#sedraImage"
+        onclick="document.querySelector('.overlay').showModal()"
+        >South Eastern Distance Riders Association Scorecard Example</a
+      >
+      <br />
+      <a
+        href="#aercImage"
+        onclick="document.querySelector('.overlay').showModal()"
+        >American Endurance Ride Conference Evaluation Example</a
+      >
+    </div>
+    <dialog class="overlay" onclick="this.close()">
+      <img
+        id="sedraImage"
+        class="popupImg"
+        src="../static/images/SEDRAcard.png"
+      />
+      <img
+        id="aercImage"
+        class="popupImg"
+        src="../static/images/AERCcard.png"
+      />
+    </dialog>
+    <br />
+    <div class="filebox-container">
+      <div class="filebox">
+        <div
+          id="drop-zone"
+          class="dottedfill"
+          hx-trigger="drop"
+          hx-post="/upload"
+          ondrop="event.preventDefault();
+          const files = document.querySelector('#files');
+          files.files = event.dataTransfer.files; 
+          console.log(files);
+          const ul = document.querySelector('.fileList'); 
+          ul.innerHTML ='';
+          for(const f of event.dataTransfer.files){ul.innerHTML += '<li>'+f.name+'</li>';};"
+          ondragover="event.preventDefault()"
+        >
+          <a class="filedrop">Drag Your Files Here!</a>
+        </div>
+        <a class="or">Or</a>
+        <ul id="file-list"></ul>
+        <!-- TODO: Convert to Django -->
+        {% include 'partials/form.html'%}
+        {% include 'partials/camera.html'%}
+      </div>
+    </div>
+
+{% endblock %}

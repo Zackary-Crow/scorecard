@@ -1,0 +1,30 @@
+<form
+    id="file-upload"
+    hx-encoding="multipart/form-data"
+    hx-post="{% url 'api' %}"
+>
+    <label for="files"></label>
+    <ul class="fileList"></ul>
+    <button
+    type="button"
+    id="uploadButton"
+    onclick="this.children[0].click()"
+    >
+    Upload Files
+    <div style="display:none" onclick="this.children[0].click()">
+    {{form.data}}
+    <div>
+    {% comment %} <input
+        id="files"
+        oninput=" const ul = document.querySelector('.fileList'); 
+                ul.innerHTML ='';
+                for(const f of event.target.files){ul.innerHTML += '<li>'+f.name+'</li>';}"
+        type="file"
+        accept="image/*"
+        multiple
+        name="files"
+        style="display: none; margin: auto"
+    /> {% endcomment %}
+    </button>
+    <button id="uploadButton">Submit</button>
+</form>
