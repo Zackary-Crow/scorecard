@@ -14,7 +14,7 @@ newBound = [[0,0],[1000,0],[0,500],[1000,500]]
 #img = cv2.imread("testingDocument.png")
 #img = cv2.imread("tracedSample1.jpg")
 #img = cv2.imread("BlackAdditionSample.png")
-img = cv2.imread("python/goodScan.jpg")
+img = cv2.imread("python/niceScan.jpg")
 
 
 
@@ -70,11 +70,13 @@ con = np.zeros_like(img_morph)
 contours, hierarchy = cv2.findContours(canny, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 # Keeping only the largest detected contour.
 page = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
+"""
 con = cv2.drawContours(con, page, -1, (0, 255, 255), 3)
 
 closing = cv2.morphologyEx(con, cv2.MORPH_CLOSE, (25,25),iterations=5)
-# plt.imshow(closing, cmap = "binary")
-# plt.show()
+plt.imshow(closing, cmap = "binary")
+plt.show()
+"""
 
 # Blank canvas.
 con = np.zeros_like(img_morph)
