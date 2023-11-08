@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import cv2
 import os
 import math
+from ..neuralNetwork import ocrIntegration as ocr
+# import neuralNetwork.ocrIntegration as ocr
 
 #manual points for first rider
 #corners = [[1200,2600],[1200,1660],[4000,2600],[4000,1660]]
@@ -13,6 +15,7 @@ xval = 400
 
 def findNumbers(group,img):
 #finds n many numbers inside of box
+    resultArr = []
     for glist in group:
         glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
         glist.reverse()
@@ -29,25 +32,39 @@ def findNumbers(group,img):
         glist = glist[0:val]
         glist.reverse()
         i=0
+        groupArr = []
         for c in glist:
-            if cv2.contourArea(c) < cv2.arcLength(c,True):
+            print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}\nheight: {cv2.boundingRect(c)[3]}")
+            if cv2.contourArea(c) < cv2.arcLength(c,True) or (cv2.contourArea(c) <= 200 and cv2.boundingRect(c)[3] < cv2.arcLength(c,True)/3):
                 continue
             x,y,w,h = cv2.boundingRect(c)
             finalimg = img[y:y+h,x:x+w]
             finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
             #finalimg = np.invert(finalimg)
-            plt.imshow(finalimg)
-            plt.show()
-            #makes image MNIST size
-            finalimg = cv2.resize(finalimg,(28,28))
-            finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
-            (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            if zeroRowCount(finalimg) > 21:
-                continue
+            # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
             # plt.imshow(finalimg)
             # plt.show()
-            cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
-            i+=1
+            #makes image MNIST size
+            finalimg = cv2.resize(finalimg,(28,28))
+            plt.imshow(finalimg)
+            plt.show()
+            finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
+            plt.imshow(finalimg)
+            plt.show()
+            (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            plt.imshow(finalimg)
+            plt.show()
+            if zeroRowCount(finalimg) > 21:
+                continue
+            plt.imshow(finalimg)
+            plt.show()
+            groupArr.append(finalimg)
+            # plt.imshow(finalimg)
+            # plt.show()
+            # cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
+            # i+=1
+        resultArr.append(groupArr)
+    return resultArr
 
 def order_points(pts):
     '''Rearrange coordinates to order:
@@ -83,7 +100,7 @@ def zeroRowCount(img):
 #img = cv2.imread("testingDocument.png")
 #img = cv2.imread("tracedSample1.jpg")
 #img = cv2.imread("BlackAdditionSample.png")
-img = cv2.imread("darkLandscapeScan.jpg")
+img = cv2.imread("src/python/crookedScan.jpg")
 # plt.imshow(img)
 # plt.show()
 
@@ -168,8 +185,8 @@ for corner in corners:
     x, y = corner.ravel()
     cv2.circle(foundCorners,(int(x),int(y)),50,(36,255,12),-1)
 
-# plt.imshow(foundCorners)
-# plt.show()
+plt.imshow(foundCorners)
+plt.show()
 
 
 
@@ -203,8 +220,8 @@ M = cv2.getPerspectiveTransform(np.float32(pts), np.float32(destination_corners)
 # Perspective transform using homography.
 fimg = cv2.warpPerspective(img, M, (maxWidth,maxHeight), flags=cv2.INTER_LINEAR)
 
-# plt.imshow(fimg)
-# plt.show()
+plt.imshow(fimg)
+plt.show()
 
 # plt.imshow(fimg)
 # plt.show()
@@ -224,14 +241,14 @@ detected_lines = cv2.morphologyEx(th, cv2.MORPH_OPEN, vertical_kernel, iteration
 # detected_lines = cv2.dilate(detected_lines, vertical_kernel, iterations=5)
 closing = cv2.morphologyEx(detected_lines, cv2.MORPH_CLOSE, vertical_kernel, iterations=10)
 
-plt.imshow(closing)
-plt.show()
+# plt.imshow(closing)
+# plt.show()
 
 #remove lines that are straight and long
 cnts, hierarchy = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# plt.imshow(detected_lines)
-# plt.show()
+plt.imshow(detected_lines)
+plt.show()
 
 section = [0]
 for c in cnts:
@@ -302,8 +319,8 @@ for t in range(len(section)-1):
     result = cv2.morphologyEx(testimg, cv2.MORPH_CLOSE, repair_kernel, iterations=1)
     result = np.invert(result)
 
-    plt.imshow(result)
-    plt.show()
+    # plt.imshow(result)
+    # plt.show()
     # timg = fimg[0:maxHeight,0:section[0]]
     # plt.imshow(timg)
     # plt.show()
@@ -338,8 +355,8 @@ for t in range(len(section)-1):
     th[:,0:500] = 0
     th[np.r_[0:500,1700:2000],:] = 0
 
-    plt.imshow(th)
-    plt.show()
+    # plt.imshow(th)
+    # plt.show()
 
     # res = cv2.cvtColor(finalimg,cv2.COLOR_BGR2GRAY)
     # #res = np.invert(res)
@@ -369,8 +386,8 @@ for t in range(len(section)-1):
     #uses contours with external fill to seperate digits 
     test = cv2.cvtColor(finalimg,cv2.COLOR_BGR2GRAY)
     ret,rth = cv2.threshold(test, 200, 255, cv2.THRESH_OTSU + cv2.THRESH_TOZERO_INV)
-    plt.imshow(rth)
-    plt.show()
+    # plt.imshow(rth)
+    # plt.show()
 
     temp = th[np.r_[600:900,1100:1200,1500:1600],xval:950]
     real = rth[np.r_[600:900,1100:1200,1500:1600],xval:950]
@@ -402,5 +419,8 @@ for t in range(len(section)-1):
 
     #sortcontours = sorted(contours, key=lambda c: cv2.boundingRect(c)[1])
     grouped.reverse()
-    findNumbers(grouped,img=real)
+    imgArr = findNumbers(grouped,img=real)
+    ocr.passPixelArray(imgArr)
+
+    
 
