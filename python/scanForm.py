@@ -11,6 +11,74 @@ newBound = [[0,0],[1000,0],[0,500],[1000,500]]
 
 xval = 400
 
+def findNumbers(group,img):
+#finds n many numbers inside of box
+    for glist in group:
+        glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
+        glist.reverse()
+        print(cv2.boundingRect(glist[0])[0])
+        if( cv2.boundingRect(glist[0])[0] < (600-xval)+100):
+            continue            
+        val = len(glist)
+        for i, j in enumerate(glist[:-1]):
+            print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])}")
+            if (cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])) > 30:
+                val = i+1
+                break
+        print(f"val {val} glist size {len(glist)}")
+        glist = glist[0:val]
+        glist.reverse()
+        i=0
+        for c in glist:
+            if cv2.contourArea(c) < cv2.arcLength(c,True):
+                continue
+            x,y,w,h = cv2.boundingRect(c)
+            finalimg = img[y:y+h,x:x+w]
+            finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
+            #finalimg = np.invert(finalimg)
+            plt.imshow(finalimg)
+            plt.show()
+            #makes image MNIST size
+            finalimg = cv2.resize(finalimg,(28,28))
+            finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
+            (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            if zeroRowCount(finalimg) > 21:
+                continue
+            # plt.imshow(finalimg)
+            # plt.show()
+            cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
+            i+=1
+
+def order_points(pts):
+    '''Rearrange coordinates to order:
+      top-left, top-right, bottom-right, bottom-left'''
+    rect = np.zeros((4, 2), dtype='float32')
+    pts = np.array(pts)
+    s = pts.sum(axis=1)
+    # Top-left point will have the smallest sum.
+    rect[0] = pts[np.argmin(s)]
+    # Bottom-right point will have the largest sum.
+    rect[2] = pts[np.argmax(s)]
+ 
+    diff = np.diff(pts, axis=1)
+    # Top-right point will have the smallest difference.
+    rect[1] = pts[np.argmin(diff)]
+    # Bottom-left will have the largest difference.
+    rect[3] = pts[np.argmax(diff)]
+    # Return the ordered coordinates.
+    return rect.astype('int').tolist()
+
+def zeroRowCount(img):
+    count = 0
+
+    for i in range (28):
+        for j in range (28):
+            if img[i][j] != 0:
+                break
+            if j == 27:
+                count += 1
+
+    return count
 #read in image as grayscale
 #img = cv2.imread("testingDocument.png")
 #img = cv2.imread("tracedSample1.jpg")
@@ -111,36 +179,8 @@ for corner in corners:
 # Sorting the corners and converting them to desired shape.
 corners = sorted(np.concatenate(corners).tolist())
 
-def order_points(pts):
-    '''Rearrange coordinates to order:
-      top-left, top-right, bottom-right, bottom-left'''
-    rect = np.zeros((4, 2), dtype='float32')
-    pts = np.array(pts)
-    s = pts.sum(axis=1)
-    # Top-left point will have the smallest sum.
-    rect[0] = pts[np.argmin(s)]
-    # Bottom-right point will have the largest sum.
-    rect[2] = pts[np.argmax(s)]
- 
-    diff = np.diff(pts, axis=1)
-    # Top-right point will have the smallest difference.
-    rect[1] = pts[np.argmin(diff)]
-    # Bottom-left will have the largest difference.
-    rect[3] = pts[np.argmax(diff)]
-    # Return the ordered coordinates.
-    return rect.astype('int').tolist()
 
-def zeroRowCount(img):
-    count = 0
 
-    for i in range (28):
-        for j in range (28):
-            if img[i][j] != 0:
-                break
-            if j == 27:
-                count += 1
-
-    return count
 
 pts = order_points(corners)
 
@@ -228,43 +268,7 @@ print(section)
 # result = cv2.morphologyEx(th, cv2.MORPH_CLOSE, repair_kernel, iterations=1)
 
 #top left point of boxes for section A of rider form
-def findNumbers(group,img):
-#finds n many numbers inside of box
-    for glist in group:
-        glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
-        glist.reverse()
-        print(cv2.boundingRect(glist[0])[0])
-        if( cv2.boundingRect(glist[0])[0] < (600-xval)+100):
-            continue            
-        val = len(glist)
-        for i, j in enumerate(glist[:-1]):
-            print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])}")
-            if (cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])) > 30:
-                val = i+1
-                break
-        print(f"val {val} glist size {len(glist)}")
-        glist = glist[0:val]
-        glist.reverse()
-        i=0
-        for c in glist:
-            if cv2.contourArea(c) < cv2.arcLength(c,True):
-                continue
-            x,y,w,h = cv2.boundingRect(c)
-            finalimg = img[y:y+h,x:x+w]
-            finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
-            #finalimg = np.invert(finalimg)
-            plt.imshow(finalimg)
-            plt.show()
-            #makes image MNIST size
-            finalimg = cv2.resize(finalimg,(28,28))
-            finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
-            (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            if zeroRowCount(finalimg) > 21:
-                continue
-            # plt.imshow(finalimg)
-            # plt.show()
-            cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
-            i+=1
+
             
 
 for t in range(len(section)-1):
