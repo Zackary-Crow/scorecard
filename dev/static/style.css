@@ -259,6 +259,30 @@ img:target, #overlay + img:target{
   margin: 5px;
 }
 
+#camera-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-height: 95vh;
+  z-index: 10000;
+}
+
+#camera-modal .modal-content {
+  background-color: #fff;
+  border: 5px solid #888;
+  text-align: center;
+}
+
+#camera-modal video {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-height: 100% !important;
+}
+
 .tab-container {
   display: flex;
   align-items: center;
