@@ -230,7 +230,7 @@ def computeSection(left,right,maxHeight,img):
         if( cv2.contourArea(c) > cv2.arcLength(c,True)):
             x,y,w,h = cv2.boundingRect(c)
             list.append((c,y,y+h))
-    # print(f"list size {len(list)}")
+    print(f"list size {len(list)}")
     index = 0
     # for l in list:
         # print(str(l[1])+" "+str(l[2]))
@@ -243,7 +243,7 @@ def computeSection(left,right,maxHeight,img):
         else:
             grouped.append(None)
             index += 1
-    if grouped[index] == None:
+    if grouped[index] == None and list != None:
         grouped[index] = [list[-1][0]]
     grouped.reverse()
     return grouped,actualImg
@@ -276,8 +276,8 @@ def findNumbers(group,img):
         finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
         #finalimg = np.invert(finalimg)
         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
-        # plt.imshow(finalimg)
-        # plt.show()
+        plt.imshow(finalimg)
+        plt.show()
         #makes image MNIST size
         finalimg = cv2.resize(finalimg,(28,28))
         finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
@@ -320,23 +320,24 @@ def docFind(imgData):
 def fullProcess(img):
 
     img = resizeImage(img)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     c = findCorners(img)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, corners = straightenImage(img, c)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, maxHeight = centerImage(img, corners)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, cnts = findContours(img)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, section = findSections(img, cnts,maxHeight)
-    # plt.imshow(img)
-    # plt.show()
+    # print(section)
+    plt.imshow(img)
+    plt.show()
     predictions = []
     riderArr = []
     for i,j in enumerate(section[:-1]):
@@ -352,6 +353,8 @@ def fullProcess(img):
             for digit in arr:
                 val = makePrediction(digit,model)
                 item.append(val)
+            if len(item) > 3:
+                continue
             if len(item) == 2:
                 groupArr.append(item[0]+(item[1]/10))
             else:
