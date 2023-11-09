@@ -289,11 +289,15 @@ img:target, #overlay + img:target{
   justify-content: center;
 }
 
+h3 {
+  border-bottom: 2px solid #000;
+}
+
 .tab {
-  width: 60%;
+  width: 75%;
   height: 40%;
   overflow: hidden;
-  border: 1px solid #ccc;
+  border: 2px solid #000;
   background-color: #f1f1f1;
 }
 
@@ -305,31 +309,49 @@ img:target, #overlay + img:target{
   cursor: pointer;
   padding: 14px 16px;
   transition: 0.3s;
+  border-right: 2px solid #000;
 }
 
 .tab button:hover {
-  background-color: #dd17c3;
+  background-color: #393939;
 }
 
 .tab button.active {
-  background-color: #000000;
+  background-color: #7DA582;
 }
 
 .tab-content {
   display: none;
-  width: 60%;
+  width: 75%;
   height: 40%;
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border: 2px solid #000;
   background-color: #f1f1f1;
   border-top: none;
 }
 
-#image {
-  display: none;
-  width: 933.6px;
-  height: 733.6px;
-  z-index: 10000;
+#form-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+#form {
+  padding: 5px;
+  width: 20%;
+  border-left: 1px solid #000;
+}
+
+li {
+  display: flex; /* Use flex layout for label and input alignment */
+  align-items: left; /* Vertically center label and input */
+  margin-bottom: 10px; /* Adjust the margin as needed */
+  font-size: 15px;
+}
+
+p {
+  font-weight: bold;
+  font-size: 20px;
 }
 
  

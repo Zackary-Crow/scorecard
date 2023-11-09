@@ -1,3 +1,4 @@
+<<<<<<< HEAD:dev/static/display.html
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -79,4 +80,187 @@
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Flex&display=swap" rel="stylesheet" />
+        <link href="./css/styles.css" rel="stylesheet" />
+        <title>SEDRA Scorecard Scanner</title>
+    </head>
+    <body>
+        <div id="json-data"></div>
+        <header class = "banner">
+            <div class = "logoNtitle">
+                <img class = "img1" src="./images/SEDRA.png">
+            <p>Scorecard<br>Scanner</p>
+            </div>
+            <div class = "link-container">
+                <a class = "link" href = "https://www.distanceriding.org/">Home</a>
+                <a class = "link" href = "https://www.distanceriding.org/">How It Works</a>
+                <a class = "link" href = "https://www.distanceriding.org/">About Us</a>
+            </div>
+            <div class = "button-container">
+                <button id = "light-dark" style = "border-radius: 10px";>Dark Mode</button>
+            </div>            
+        </header>
+        <br>
+        <div class = "miniheader">Please assess and correct any incorrect values below.</div>
+        <br><br>
+        <div class = "tab-container">
+            <div class = "tab" id = "tabs"></div>
+        </div>
+        <div class = "tab-container" style = "padding-bottom: 100px;">
+            <div id = "card" class = "tab-content">
+                <div id = "form-container">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const toggleDark = document.getElementById('light-dark');
+            const body = document.body;
+            //checks for click on light mode button
+            toggleDark.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                updateText();
+            });
+            //updates button text based on light mode
+            function updateText() {
+                const currentText = body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+                toggleDark.textContent = currentText;
+            }
+            //pull values from json for each tab when opened
+            function openCard(event, cardNum, riderIndex, json) {
+                console.log(riderIndex);
+                const card = document.getElementById('card');
+                const h3 = document.createElement('h3');
+                h3.textContent = `Scorecard ${riderIndex + 1}`;
+                var i, tabcontent, tablinks;
+                //hides all tabs, displays clicked on tab's contents and darkens tab
+                tabcontent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tab-links");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(cardNum).style.display = "block";
+                event.currentTarget.className += " active";
+                //fill each tab's forms with its respective values from json
+                const formContainer = document.getElementById('form-container');
+                formContainer.innerHTML = '';
+
+                const riderData = json.scorecards[0].riders;
+                //sets form fields for each rider in scorecard with json values prewritten
+                riderData.forEach((item, index) => {
+                    const form = document.createElement('form');
+                    const p = document.createElement('p');
+                    p.textContent = `Rider ${index + 1}`;
+                    form.appendChild(p);
+                    
+                    const liRec = document.createElement('li');
+                    const labelRec = document.createElement('label');
+                    const inputRec = document.createElement('input');
+                    inputRec.type = 'text';
+                    inputRec.name = "Recovery";
+                    inputRec.placeholder = item.recovery;
+                    liRec.appendChild(labelRec);
+                    liRec.appendChild(inputRec);
+                    form.appendChild(liRec);
+
+                    const liHyd = document.createElement('li');
+                    const labelHyd = document.createElement('label');
+                    const inputHyd = document.createElement('input');
+                    inputHyd.type = 'text';
+                    inputHyd.name = "Hydration";
+                    inputHyd.placeholder = item.hydration;
+                    liHyd.appendChild(labelHyd);
+                    liHyd.appendChild(inputHyd);
+                    form.appendChild(liHyd);
+
+                    const liLes = document.createElement('li');
+                    const labelLes = document.createElement('label');
+                    const inputLes = document.createElement('input');
+                    inputLes.type = 'text';
+                    inputLes.name = "Lesions";
+                    inputLes.placeholder = item.lesions;
+                    liLes.appendChild(labelLes);
+                    liLes.appendChild(inputLes);
+                    form.appendChild(liLes);
+
+                    const liSou = document.createElement('li');
+                    const labelSou = document.createElement('label');
+                    const inputSou = document.createElement('input');
+                    inputSou.type = 'text';
+                    inputSou.name = "Soundness";
+                    inputSou.placeholder = item.soundness;
+                    liSou.appendChild(labelSou);
+                    liSou.appendChild(inputSou);
+                    form.appendChild(liSou);
+
+                    const liQM = document.createElement('li');
+                    const labelQM = document.createElement('label');
+                    const inputQM = document.createElement('input');
+                    inputQM.type = 'text';
+                    inputQM.name = "Qual. Mvmt.";
+                    inputQM.placeholder = item.qual_mvmt;
+                    liQM.appendChild(labelQM);
+                    liQM.appendChild(inputQM);
+                    form.appendChild(liQM);
+
+                    const liRT = document.createElement('li');
+                    const labelRT = document.createElement('label');
+                    const inputRT = document.createElement('input');
+                    inputRT.type = 'text';
+                    inputRT.name = "Ride Time";
+                    inputRT.placeholder = item.ride_time;
+                    liRT.appendChild(labelRT);
+                    liRT.appendChild(inputRT);
+                    form.appendChild(liRT);
+                    
+                    const liWei = document.createElement('li');
+                    const labelWei = document.createElement('label');
+                    const inputWei = document.createElement('input');
+                    inputWei.type = 'text';
+                    inputWei.name = "Weiration";
+                    inputWei.placeholder = item.weight;
+                    liWei.appendChild(labelWei);
+                    liWei.appendChild(inputWei);
+                    form.appendChild(liWei);
+
+                    formContainer.appendChild(form);
+                    card.appendChild(h3);
+                });
+                console.log(card);
+                card.appendChild(formContainer);
+            }
+            //imports test.json when page loads
+            async function importJSON() {
+                const response = await fetch('test.json');
+                return response.json();
+            }
+            //creates tabs for each scorecard
+            async function createTabs() {
+                const json = await importJSON();
+                const tabContainer = document.getElementById('tabs');
+                json.scorecards.forEach((scorecard, index) => {
+                    const tab = document.createElement('button');
+                    tab.className = 'tab-links';
+                    tab.textContent = `Scorecard ${index + 1}`;
+                    tab.onclick = function(event) {
+                        openCard(event, 'card', index, json);
+                    }
+                    tabContainer.appendChild(tab);
+                });
+            }
+            document.addEventListener('DOMContentLoaded', createTabs);
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </body>
+>>>>>>> 393adae (Display page overhaul):display.html
 </html>
