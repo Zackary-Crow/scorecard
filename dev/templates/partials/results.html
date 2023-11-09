@@ -1,0 +1,23 @@
+<div id="modals-here" class="modal modal-blur fade show" style="display: block;" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <h2>Display Results</h2>
+      <div class="modal-body">
+        {% for i in list%}
+        <h3>Rider</h3>
+          <ul>
+            {% for j in i %}
+            <li>{{j}}</li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="this.parentElement.closest('#modals-here').classList.remove('show')">Close</button>
+
+        {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> {% endcomment %}
+      </div>
+    </div>
+  </div>
+</div>
+  

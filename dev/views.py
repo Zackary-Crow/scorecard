@@ -4,6 +4,9 @@ from django.http import HttpResponse
 
 from dev.forms import PhotoForm
 from dev.models import Photo
+from PIL import Image
+from backend import integration as ocr
+import numpy as np
 
 # Create your views here.
 class HomeView(TemplateView):
@@ -15,7 +18,14 @@ class HomeView(TemplateView):
 def api(request):
     if(request.method == 'POST'):
         form = PhotoForm(request.POST or None, request.FILES or None)
-        if form.is_valid():
-            form.save()
-    return render(request, 'partials/form.html', {'form':PhotoForm()})
+        temp = request.FILES['data']
+        img = np.array(Image.open(temp).convert('RGB'))
+        results = ocr.fullProcess(img)
+        print(results)
+        # if form.is_valid():
+        #     form.save()
+        return render(request, 'partials/results.html', {'list':results})
+
+    if(request.method == 'GET'):
+        return render(request, 'partials/camera.html')
     

@@ -1,11 +1,11 @@
 
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 
     <header class="banner">
       <div class="logoNtitle">
-        <img class="img1" src="../static/images/SEDRA.png" />
+        <img class="img1" src="{% static 'images/SEDRA.png' %}" />
         <p>Scorecard<br />Scanner</p>
       </div>
       <div class="link-container">
@@ -49,12 +49,12 @@
       <img
         id="sedraImage"
         class="popupImg"
-        src="../static/images/SEDRAcard.png"
+        src="{% static 'images/SEDRAcard.png' %}"
       />
       <img
         id="aercImage"
         class="popupImg"
-        src="../static/images/AERCcard.png"
+        src="{% static 'images/AERCcard.png' %}"
       />
     </dialog>
     <br />
@@ -80,7 +80,14 @@
         <ul id="file-list"></ul>
         <!-- TODO: Convert to Django -->
         {% include 'partials/form.html'%}
-        {% include 'partials/camera.html'%}
+        <button id="photoButton" 
+                type="button"
+                onclick="event.preventDefault()"
+                hx-get="{% url 'api' %}"
+                hx-target="#modals-here"
+                data-bs-toggle="modal" 
+                data-bs-target="#modals-here"
+                > Take a Photo</button>
       </div>
     </div>
 
