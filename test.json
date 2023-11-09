@@ -1,0 +1,115 @@
+{
+    "scorecards": [
+      {
+        "scorecard_id": "1",
+        "riders": [
+          {
+            "rider_name": "Luffy",
+            "recovery": "Value 1",
+            "hydration": "Value 2",
+            "lesions": "Value 3",
+            "soundness": "Value 4",
+            "qual_mvmt": "Value 5",
+            "ride_time": "Value 6",
+            "weight": "Value 7"
+          },
+          {
+            "rider_name": "Zoro",
+            "recovery": "Value 8",
+            "hydration": "Value 9",
+            "lesions": "Value 10",
+            "soundness": "Value 11",
+            "qual_mvmt": "Value 12",
+            "ride_time": "Value 13",
+            "weight": "Value 14"
+          },
+          {
+            "rider_name": "Nami",
+            "recovery": "Value 15",
+            "hydration": "Value 16",
+            "lesions": "Value 17",
+            "soundness": "Value 18",
+            "qual_mvmt": "Value 19",
+            "ride_time": "Value 20",
+            "weight": "Value 21"
+          },
+          {
+            "rider_name": "Usopp",
+            "recovery": "Value 22",
+            "hydration": "Value 23",
+            "lesions": "Value 24",
+            "soundness": "Value 25",
+            "qual_mvmt": "Value 26",
+            "ride_time": "Value 27",
+            "weight": "Value 28"
+          },
+          {
+            "rider_name": "Sanji",
+            "recovery": "Value 29",
+            "hydration": "Value 30",
+            "lesions": "Value 31",
+            "soundness": "Value 32",
+            "qual_mvmt": "Value 33",
+            "ride_time": "Value 34",
+            "weight": "Value 35"
+          }
+        ]
+      },
+      {
+        "scorecard_id": "2",
+        "riders": [
+          {
+            "rider_name": "Chopper",
+            "recovery": "Value 36",
+            "hydration": "Value 37",
+            "lesions": "Value 38",
+            "soundness": "Value 39",
+            "qual_mvmt": "Value 40",
+            "ride_time": "Value 41",
+            "weight": "Value 42"
+          },
+          {
+            "rider_name": "Robin",
+            "recovery": "Value 43",
+            "hydration": "Value 44",
+            "lesions": "Value 45",
+            "soundness": "Value 46",
+            "qual_mvmt": "Value 47",
+            "ride_time": "Value 48",
+            "weight": "Value 49"
+          },
+          {
+            "rider_name": "Franky",
+            "recovery": "Value 50",
+            "hydration": "Value 51",
+            "lesions": "Value 52",
+            "soundness": "Value 53",
+            "qual_mvmt": "Value 54",
+            "ride_time": "Value 55",
+            "weight": "Value 56"
+          },
+          {
+            "rider_name": "Brook",
+            "recovery": "Value 57",
+            "hydration": "Value 58",
+            "lesions": "Value 59",
+            "soundness": "Value 60",
+            "qual_mvmt": "Value 61",
+            "ride_time": "Value 62",
+            "weight": "Value 63"
+          },
+          {
+            "rider_name": "Jinbei",
+            "recovery": "Value 64",
+            "hydration": "Value 65",
+            "lesions": "Value 66",
+            "soundness": "Value 67",
+            "qual_mvmt": "Value 68",
+            "ride_time": "Value 69",
+            "weight": "Value 70"
+          }
+        ]
+      }
+    ]
+  }
+  
