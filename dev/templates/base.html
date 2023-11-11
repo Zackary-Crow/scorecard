@@ -26,18 +26,30 @@
     <title>SEDRA Scorecard Scanner</title>
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <div id="modals-here"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1"
-    hx-swap-oob="innerHTML"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-          <div class="modal-content"></div>
+    <header class="banner">
+      <div class="logoNtitle">
+        <img class="img1" src="{% static 'images/SEDRA.png' %}" />
+        <p>Scorecard<br />Scanner</p>
       </div>
-    </div>
-    <div>
+      <div class="link-container">
+        <a class="link" href="https://www.distanceriding.org/">Home</a>
+        <a class="link" href="https://www.distanceriding.org/">How It Works</a>
+        <a class="link" href="https://www.distanceriding.org/">About Us</a>
+      </div>
+      <div class="button-container">
+        <button
+          onclick=" let t = body.classList.toggle('dark-mode');
+                    if(t) this.textContent='Light Mode'; 
+                    else this.textContent='Dark Mode'"
+          id="light-dark"
+          style="border-radius: 10px"
+          ;
+        >
+          Dark Mode
+        </button>
+      </div>
+    </header>
+    <div id = "main" hx-swap-oob="true">
       {% block content %}
       {% endblock %}
     </div>

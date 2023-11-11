@@ -20,14 +20,15 @@ class CameraConsumer(WebsocketConsumer):
         if(data != None):
             eval, c, img = ocr.docFind(data)
             if(eval):
-                img, corners = ocr.straightenImage(img, c)
-                img, maxHeight = ocr.centerImage(img, corners)
-                _, im_arr = cv2.imencode('.png', img)  # im_arr: image in Numpy one-dim array format.
-                im_bytes = im_arr.tobytes()
-                im_b64 = str(base64.b64encode(im_bytes)).split("'")[1]
-                html = get_template("partials/display.html").render(
+                riders = ocr.fullProcess(img)
+                # img, corners = ocr.straightenImage(img, c)
+                # img, maxHeight = ocr.centerImage(img, corners)
+                # _, im_arr = cv2.imencode('.png', img)  # im_arr: image in Numpy one-dim array format.
+                # im_bytes = im_arr.tobytes()
+                # im_b64 = str(base64.b64encode(im_bytes)).split("'")[1]
+                html = get_template("display.html").render(
                     context = {
-                        'base64': im_b64
+                        'riders': riders
                     }
                 )
                 self.send(text_data=html)

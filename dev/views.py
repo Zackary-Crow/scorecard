@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import HttpResponse
+from django import http
 
 from dev.forms import PhotoForm
 from dev.models import Photo
@@ -24,7 +24,8 @@ def api(request):
         print(results)
         # if form.is_valid():
         #     form.save()
-        return render(request, 'partials/results.html', {'list':results})
+        
+        return render(request, 'display.html', {'riders':results})
 
     if(request.method == 'GET'):
         return render(request, 'partials/camera.html')

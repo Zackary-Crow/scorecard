@@ -3,29 +3,17 @@
 {% load static %}
 {% block content %}
 
-    <header class="banner">
-      <div class="logoNtitle">
-        <img class="img1" src="{% static 'images/SEDRA.png' %}" />
-        <p>Scorecard<br />Scanner</p>
+<div id="modals-here"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1"
+    hx-swap-oob="innerHTML"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+          <div class="modal-content"></div>
       </div>
-      <div class="link-container">
-        <a class="link" href="https://www.distanceriding.org/">Home</a>
-        <a class="link" href="https://www.distanceriding.org/">How It Works</a>
-        <a class="link" href="https://www.distanceriding.org/">About Us</a>
-      </div>
-      <div class="button-container">
-        <button
-          onclick=" let t = body.classList.toggle('dark-mode');
-                    if(t) this.textContent='Light Mode'; 
-                    else this.textContent='Dark Mode'"
-          id="light-dark"
-          style="border-radius: 10px"
-          ;
-        >
-          Dark Mode
-        </button>
-      </div>
-    </header>
+    </div>
     <br />
     <div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
     <br />

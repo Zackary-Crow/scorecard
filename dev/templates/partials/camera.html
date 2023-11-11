@@ -19,7 +19,7 @@
         
             function initCamera() {
                 print("init camera")
-                navigator.mediaDevices.getUserMedia({video: true})
+                navigator.mediaDevices.getUserMedia({video: { facingMode: "enviroment" } })
                 .then(mediaStream => {
                     cameraFeed.srcObject = mediaStream;
                 });

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div id = "main">
+        <div id="json-data"></div>
+        <br>
+        <div class = "miniheader">Please assess and correct any incorrect values below.</div>
+        <br><br>
+        <div class = "tab-container">
+            <div class = "tab" id = "tabs"></div>
+        </div>
+        <div class = "tab-container" style = "padding-bottom: 100px;">
+            <div id = "card" class = "tab-content">
+                <div id = "form-container">
+                    {% for rider in riders %}
+                        <form>
+                            <p>Rider {{forloop.counter}}</p>
+                            {% for item in rider%}
+                            <li><label></label><input type="text" value="{{item}}"/></li>
+                            {% endfor %}
+                        </form>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+<div id = "body">
+{% endblock %}

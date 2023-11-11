@@ -60,6 +60,7 @@ def order_points(pts):
 
 def findCorners(img):
     # threshold black and white
+    timg = img.copy()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     T_, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
@@ -88,14 +89,16 @@ def findCorners(img):
         corners = cv2.approxPolyDP(c, epsilon, True)
         # If our approximated contour has four points
         if len(corners) == 4:
-            return c
+            # return c
             break
-    # cv2.drawContours(con, c, -1, (0, 255, 255), 3)
-    # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
+    cv2.drawContours(con, c, -1, (0, 255, 255), 3)
+    cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
 
-    # for corner in corners:
-    #     x, y = corner.ravel()
-    #     cv2.circle(img,(int(x),int(y)),50,(36,255,12),-1)
+    for corner in corners:
+        x, y = corner.ravel()
+        cv2.circle(timg,(int(x),int(y)),50,(36,255,12),-1)
+    
+    return timg,c
 
 def straightenImage(img, c):
     epsilon = 0.02 * cv2.arcLength(c, True)
@@ -145,9 +148,16 @@ def centerImage(img, corners):
 
 def findContours(img):
     gimg = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2GRAY)
-
-    #ret,th = cv2.threshold(gimg, 150, 200, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    b = .1
+    x,y = gimg.shape[0],gimg.shape[1]
+    bor_x,bor_y = int(x*b),int(y*b)
     ret,th = cv2.threshold(gimg, 150, 200, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    th = th[bor_x:x-bor_x,bor_y:y-bor_y]
+    th = np.pad(th,pad_width=((bor_x,bor_x),(bor_y,bor_y)),mode='constant',constant_values=0)
+    
+    #ret,th = cv2.threshold(gimg, 150, 200, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
 
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,10))
     detected_lines = cv2.morphologyEx(th, cv2.MORPH_OPEN, vertical_kernel, iterations=10)
@@ -155,8 +165,8 @@ def findContours(img):
     # detected_lines = cv2.dilate(detected_lines, vertical_kernel, iterations=5)
     closing = cv2.morphologyEx(detected_lines, cv2.MORPH_CLOSE, vertical_kernel, iterations=10)
 
-    # plt.imshow(closing)
-    # plt.show()
+    plt.imshow(closing)
+    plt.show()
 
     #remove lines that are straight and long
     cnts, hierarchy = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -166,7 +176,7 @@ def findContours(img):
     return img, cnts
 
 def findSections(img, cnts, maxHeight):
-    section = []
+    section = [0]
     for c in cnts:
         if(cv2.arcLength(c,True) > maxHeight*.5):
             section.append(c[0,0,0])
@@ -276,8 +286,9 @@ def findNumbers(group,img):
         finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
         #finalimg = np.invert(finalimg)
         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
-        plt.imshow(finalimg)
-        plt.show()
+        #TODO
+        # plt.imshow(finalimg)
+        # plt.show()
         #makes image MNIST size
         finalimg = cv2.resize(finalimg,(28,28))
         finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
@@ -307,7 +318,7 @@ def docFind(imgData):
     img = cv2.imdecode(npimg, 1)
 
     img = resizeImage(img)
-    c = findCorners(img)
+    img, c = findCorners(img)
     # print(c.dtype)
     if c is not None:
         if(cv2.contourArea(c) > (img.shape[0]*img.shape[1])*0.3):
@@ -320,24 +331,24 @@ def docFind(imgData):
 def fullProcess(img):
 
     img = resizeImage(img)
-    plt.imshow(img)
-    plt.show()
-    c = findCorners(img)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
+    img, c = findCorners(img)
+    # plt.imshow(img)
+    # plt.show()
     img, corners = straightenImage(img, c)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, maxHeight = centerImage(img, corners)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, cnts = findContours(img)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, section = findSections(img, cnts,maxHeight)
-    # print(section)
-    plt.imshow(img)
-    plt.show()
+    print(section)
+    # plt.imshow(img)
+    # plt.show()
     predictions = []
     riderArr = []
     for i,j in enumerate(section[:-1]):
@@ -348,7 +359,7 @@ def fullProcess(img):
             arr = findNumbers(group,sectionImg)
             if arr == None:
                 continue
-            print(f"group {k}")
+            print(f"group {k} arr size {len(arr)}")
             item = []
             for digit in arr:
                 val = makePrediction(digit,model)

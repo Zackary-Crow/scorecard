@@ -1,0 +1,22 @@
+<div class="tab-container" style="padding-bottom: 100px">
+  <div id="card" class="tab-content" style="display: block">
+    <h3>Scorecard 1</h3>
+    <div id="form-container">
+        {% for rider in riders %}
+      <form>
+        <p>Rider {{forloop.counter}}</p>
+        {% for item in rider%}
+        <li><label></label><input type="text"/></li>
+        {% endfor %}
+        {% comment %} <li><label></label><input type="text" name="Recovery" /></li>
+        <li><label></label><input type="text" name="Hydration" /></li>
+        <li><label></label><input type="text" name="Lesions" /></li>
+        <li><label></label><input type="text" name="Soundness" /></li>
+        <li><label></label><input type="text" name="Qual. Mvmt." /></li>
+        <li><label></label><input type="text" name="Ride Time" /></li>
+        <li><label></label><input type="text" name="Weiration" /></li> {% endcomment %}
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+</div>
