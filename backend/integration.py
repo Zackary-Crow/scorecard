@@ -63,25 +63,31 @@ def findCorners(img):
     timg = img.copy()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     T_, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+   
 
     img = cv2.bilateralFilter(img, 9, 75, 75)
+   
 
     # Create black and white image based on adaptive threshold
     img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 4)
+  
 
     # Median filter clears small details
     img = cv2.medianBlur(img, 11)
+  
 
     # Add black border in case that page is touching an image border
     img = cv2.copyMakeBorder(img, 5, 5, 5, 5, cv2.BORDER_CONSTANT, value=[0, 0, 0])
 
     edges = cv2.Canny(img, 200, 250)
+ 
 
+    con = np.zeros_like(img)
     contours, hierarchy = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Keeping only the largest detected contour.
     page = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
 
-    con = np.zeros_like(img)
+    
     # Loop over the contours.
     for c in page:
         # Approximate the contour.
@@ -91,8 +97,10 @@ def findCorners(img):
         if len(corners) == 4:
             # return c
             break
-    cv2.drawContours(con, c, -1, (0, 255, 255), 3)
-    cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
+    # cv2.drawContours(con, c, -1, (0, 255, 255), 3)
+    # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
+    # plt.imshow(con)
+    # plt.show()
 
     for corner in corners:
         x, y = corner.ravel()
@@ -165,8 +173,8 @@ def findContours(img):
     # detected_lines = cv2.dilate(detected_lines, vertical_kernel, iterations=5)
     closing = cv2.morphologyEx(detected_lines, cv2.MORPH_CLOSE, vertical_kernel, iterations=10)
 
-    plt.imshow(closing)
-    plt.show()
+    # plt.imshow(closing)
+    # plt.show()
 
     #remove lines that are straight and long
     cnts, hierarchy = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -213,6 +221,10 @@ def computeSection(left,right,maxHeight,img):
 
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25,1))
     detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+
+    # plt.imshow(detected_lines)
+    # plt.show()
+
     cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     for c in cnts:
@@ -304,13 +316,28 @@ def makePrediction(img,model):
     transform = transforms.ToTensor()
     # Transform
     input = transform(img)
+    s = 2
+    rolled = torch.roll(input,-s,2) , input, torch.roll(input,s,2) , torch.roll(input,-s,1) , torch.roll(input,s,1)
+    # print(input.shape)
     # unsqueeze batch dimension, in case you are dealing with a single image
-    input = input.unsqueeze(0)
-    model.eval()
-    with torch.no_grad():
-        output = model(input)
-    pred = torch.argmax(output, 1)
+    out = torch.zeros(1, 10)
+    for r in rolled:
+        r = r.unsqueeze(0)
+        model.eval()
+        with torch.no_grad():
+            output = model(r)
+        # print(output.shape)
+        out = torch.add(out,output)
+    print(out)
+    pred = torch.argmax(out, 1)
     return pred.item()
+
+    # input = input.unsqueeze(0)
+    # model.eval()
+    # with torch.no_grad():
+    #     output = model(input)
+    # pred = torch.argmax(output, 1)
+    # return pred.item()
 
 def docFind(imgData):
     bimg = base64.b64decode(imgData); 
@@ -352,8 +379,10 @@ def fullProcess(img):
     predictions = []
     riderArr = []
     for i,j in enumerate(section[:-1]):
-        print(f"section {i}")
+        # print(f"section {i}")
         groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
+        # plt.imshow(sectionImg)
+        # plt.show()
         groupArr = []
         for k,group in enumerate(groups):
             arr = findNumbers(group,sectionImg)
