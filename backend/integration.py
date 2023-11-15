@@ -356,7 +356,7 @@ def docFind(imgData):
             if len(section) == 6:
                 return True, img, section, maxHeight
 
-    return False, img, [], maxHeight
+    return False, img, [], 0
 
 def afterFind(img,section,maxHeight):
     predictions = []
