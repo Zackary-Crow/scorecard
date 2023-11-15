@@ -360,6 +360,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   padding: 5px;
+  overflow: auto;
 }
 
 #form {
