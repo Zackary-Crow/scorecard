@@ -348,9 +348,44 @@ def docFind(imgData):
     img, c = findCorners(img)
     # print(c.dtype)
     if c is not None:
-        if(cv2.contourArea(c) > (img.shape[0]*img.shape[1])*0.3):
-            return True, c , img
-    return False, c, img
+        if(cv2.contourArea(c) > (img.shape[0]*img.shape[1])*0.5):
+            img,corners = straightenImage(img,c)
+            img,maxHeight = centerImage(img,corners)
+            img, cnts = findContours(img)
+            img, section = findSections(img, cnts,maxHeight)
+            if len(section) == 6:
+                return True, img, section, maxHeight
+
+    return False, img, [], maxHeight
+
+def afterFind(img,section,maxHeight):
+    predictions = []
+    riderArr = []
+    for i,j in enumerate(section[:-1]):
+        # print(f"section {i}")
+        groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
+        # plt.imshow(sectionImg)
+        # plt.show()
+        groupArr = []
+        for k,group in enumerate(groups):
+            arr = findNumbers(group,sectionImg)
+            if arr == None:
+                continue
+            print(f"group {k} arr size {len(arr)}")
+            item = []
+            for digit in arr:
+                val = makePrediction(digit,model)
+                item.append(val)
+            if len(item) > 3:
+                continue
+            if len(item) == 2:
+                groupArr.append(item[0]+(item[1]/10))
+            else:
+                groupArr.append(sum(d * 10**i for i, d in enumerate(item[::-1])))
+            print(groupArr)
+        riderArr.append(groupArr)
+        
+    return riderArr
 
 ###########################################
 
@@ -396,12 +431,13 @@ def fullProcess(img):
             if len(item) > 3:
                 continue
             if len(item) == 2:
-                groupArr.append(item[0]+(item[1]/10))
+                groupArr.append({"value":item[0]+(item[1]/10)})
             else:
-                groupArr.append(sum(d * 10**i for i, d in enumerate(item[::-1])))
+                groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
             print(groupArr)
         riderArr.append(groupArr)
         
+    
     return riderArr
         
 
