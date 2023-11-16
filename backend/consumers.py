@@ -18,9 +18,9 @@ class CameraConsumer(WebsocketConsumer):
         if(data == ""):
             return
         if(data != None):
-            eval, c, img = ocr.docFind(data)
+            eval, img, section, maxHeight = ocr.docFind(data)
             if(eval):
-                riders = ocr.fullProcess(img)
+                riders = ocr.afterFind(img,section,maxHeight)
                 # img, corners = ocr.straightenImage(img, c)
                 # img, maxHeight = ocr.centerImage(img, corners)
                 # _, im_arr = cv2.imencode('.png', img)  # im_arr: image in Numpy one-dim array format.

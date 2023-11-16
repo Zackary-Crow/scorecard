@@ -1,39 +1,41 @@
-        <div id="camera-modal" class="modal-dialog" hx-ext="ws" ws-connect="/ws/camera">
+<script defer>
+    {% comment %} htmx.logAll(); {% endcomment %}
+    
+    var mediaStream; // Declare mediaStream variable
+    var cameraFeed = document.querySelector("#camera-feed")
+    var cameraModal = document.querySelector('#camera-modal')
+    var photoCanvas = document.querySelector('#photo-canvas')
+
+    function initCamera() {
+        navigator.mediaDevices.getUserMedia({video: { facingMode: "environment" } })
+        .then(m => {
+            mediaStream = m
+            cameraFeed.srcObject = mediaStream;
+        });
+        return
+    } 
+    function capturePhoto() {
+        const context = photoCanvas.getContext('2d');
+        photoCanvas.width = cameraFeed.videoWidth;
+        photoCanvas.height = cameraFeed.videoHeight;
+        context.drawImage(cameraFeed, 0, 0, cameraFeed.videoWidth, cameraFeed.videoHeight);
+        t = photoCanvas.toDataURL()
+        return t
+    }
+
+    initCamera()
+
+</script>
+
+       <div id="camera-modal" class="modal-dialog" hx-ext="ws" ws-connect="/ws/camera">
           <div class="modal-content">
             <h2>Camera</h2>
             <canvas id="photo-canvas" style="display: none;"></canvas>
-            <video id="camera-feed" hx-trigger="intersect, delay 5s, every 1s" hx-vals='js:{data: capturePhoto()}' ws-send autoplay></video>
+            <video id="camera-feed" hx-trigger="intersect, delay:5s, every 1s" hx-vals='js:{data: capturePhoto()}' ws-send autoplay></video>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" onclick="document.querySelector('#camera-modal').remove();
+                mediaStream.getVideoTracks()[0].stop();" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
 
-        <script>
-            
-            
-            let mediaStream; // Declare mediaStream variable
-            let imageCapture;
-            const cameraFeed = document.querySelector("#camera-feed")
-            const cameraModal = document.querySelector('#camera-modal')
-            const photoCanvas = document.querySelector('#photo-canvas')
         
-            function initCamera() {
-                print("init camera")
-                navigator.mediaDevices.getUserMedia({video: { facingMode: "enviroment" } })
-                .then(mediaStream => {
-                    cameraFeed.srcObject = mediaStream;
-                });
-            } 
-            function capturePhoto() {
-                const context = photoCanvas.getContext('2d');
-                photoCanvas.width = cameraFeed.videoWidth;
-                photoCanvas.height = cameraFeed.videoHeight;
-                context.drawImage(cameraFeed, 0, 0, cameraFeed.videoWidth, cameraFeed.videoHeight);
-                t = photoCanvas.toDataURL()
-                console.log(t)
-                return t
-            }
-
-            initCamera()
-
-        </script>

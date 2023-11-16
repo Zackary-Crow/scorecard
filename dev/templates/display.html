@@ -1,27 +1,64 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
-<div id = "main">
-        <div id="json-data"></div>
-        <br>
-        <div class = "miniheader">Please assess and correct any incorrect values below.</div>
-        <br><br>
-        <div class = "tab-container">
-            <div class = "tab" id = "tabs"></div>
-        </div>
-        <div class = "tab-container" style = "padding-bottom: 100px;">
-            <div id = "card" class = "tab-content">
-                <div id = "form-container">
-                    {% for rider in riders %}
-                        <form>
-                            <p>Rider {{forloop.counter}}</p>
-                            {% for item in rider%}
-                            <li><label></label><input type="text" value="{{item}}"/></li>
-                            {% endfor %}
-                        </form>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-<div id = "body">
-{% endblock %}
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div id="main">
+  <div id="json-data"></div>
+  <br />
+  <div class="miniheader">
+    Please assess and correct any incorrect values below.
+  </div>
+  <br /><br />
+  <div class="tab-container">
+    <div class="tab" id="tabs"></div>
+  </div>
+  <div class="tab-container" style="padding-bottom: 100px">
+    <div id="card" class="tab-content">
+      <div id="form-container">
+        {% for rider in riders %}
+        <form>
+          <p>Rider {{forloop.counter}}</p>
+          {% include 'partials/editRider.html' with values=rider %}
+            {% comment %} {% for item in rider%}
+          <li><label></label><input type="text" value="{{item}}" /></li>
+          {% endfor %} {% endcomment %}
+        </form>
+        {% endfor %}
+      </div>
+      <p>Ride Time of Winner</p>
+      <input id="rideWinner" type="text" value="Infinity"/>
+      <p>Heaviest Rider</p>
+      <input id="rideWeight" type="text" value="0"/>
+      
+      {% comment %} <input id="rideWeight" type="text" :value="Math.min(...[...document.querySelectorAll(&quot;[id='Ride Time'] > input&quot;)].map(a=>a.value))"/> {% endcomment %}
+
+    </div>
+  </div>
+  <script>
+    var rideWinner = document.querySelector('#rideWinner')
+    document.querySelectorAll("[id='Ride Time'] > input").forEach(el=>{
+        if(el.value < rideWinner.value)
+            rideWinner.value = el.value
+        el.addEventListener('input', () => {
+            rideWinner.value = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))
+        })
+    }
+    )
+    var rideWeight = document.querySelector('#rideWeight')
+    document.querySelectorAll("[id='Weight'] > input").forEach(el=>{
+        if(el.value > rideWeight.value)
+            rideWeight.value = el.value
+        el.addEventListener('input', () => {
+            rideWeight.value = Math.max(...[...document.querySelectorAll("[id='Weight'] > input")].map(a=>a.value))
+        })
+    }
+    )
+    {% comment %} [...document.querySelectorAll("[id='Ride Time'] > input")].forEach(el=>
+        el.addEventListener('input', () => {
+            var min = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))
+            if(el.value <= min)
+            {
+                document.querySelector('#rideWinner').value = el.value
+            }
+        })
+    ) {% endcomment %}
+  </script>
+  {% endblock %}
+
