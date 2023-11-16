@@ -22,6 +22,14 @@ xval = 400
 model = numeralRecognition.CNN()
 model.load_state_dict(torch.load("src/neuralNetwork/scorecardCNN.pt",map_location=torch.device('cpu')))
 
+def padToSquare(img):
+    (x, y) = img.shape
+    if x > y:
+        padding = int((x - y) / 2)
+        return cv2.copyMakeBorder(img, 0, 0, padding, padding, cv2.BORDER_CONSTANT, None, value = 0)
+    else:
+        padding = int((y - x) / 2)
+        return cv2.copyMakeBorder(img, padding, padding, 0, 0, cv2.BORDER_CONSTANT, None, value = 0)
 # resize image to height 2048
 def resizeImage(img):
         if img.shape[0] <= 2048:
@@ -102,9 +110,9 @@ def findCorners(img):
     # plt.imshow(con)
     # plt.show()
 
-    for corner in corners:
-        x, y = corner.ravel()
-        cv2.circle(timg,(int(x),int(y)),50,(36,255,12),-1)
+    # for corner in corners:
+    #     x, y = corner.ravel()
+    #     cv2.circle(timg,(int(x),int(y)),50,(36,255,12),-1)
     
     return timg,c
 
@@ -112,7 +120,9 @@ def straightenImage(img, c):
     epsilon = 0.02 * cv2.arcLength(c, True)
     corners = cv2.approxPolyDP(c, epsilon, True)
     x1, y1 = corners[1].ravel()
+    print(x1,y1)
     x2, y2 = corners[2].ravel()
+    print(x2,y2)
 
     angle = math.atan2( y2 - y1, x2 - x1 ) * ( 180 / math.pi )
 
@@ -183,16 +193,51 @@ def findContours(img):
 
     return img, cnts
 
-def findSections(img, cnts, maxHeight):
+def findSections(img, cnts):
+    width = img.shape[1]
+    maxHeight = img.shape[0]
+    
+    expected_sections = [0.214 * width, 0.395 * width, 0.576 * width, 0.758 * width]
     section = [0]
     for c in cnts:
-        if(cv2.arcLength(c,True) > maxHeight*.5):
-            section.append(c[0,0,0])
-
+        if(cv2.arcLength(c,True) > maxHeight*.5 and c[0,0,0] != 0):
+            section_candidate = c[0,0,0]
+            for i, ex in enumerate(expected_sections):
+                if (section_candidate < ex + 30 and section_candidate > ex - 30):
+                    section.append(section_candidate)
+                    break
+            if (len(expected_sections) == 0):
+                break
+    
     section = sorted(section)
-    section.append(img.shape[1])
+    expected_sections = [0, 0.214 * width, 0.395 * width, 0.576 * width, 0.758 * width]
+
+    if (len(section) != 5):
+        for i, ex in enumerate(expected_sections):
+            if (i < len(section)):
+                if (abs(section[i] - ex) >= 30):
+                    section.insert(i, ex)
+            else:
+                section.insert(i, ex)
+
+
+    section = section[:5]
+    section.append(section[-1] + (section[4] - section[1]) / 3)
+
+    #section.append(maxWidth)
 
     return img, section
+
+# def findSections(img, cnts, maxHeight):
+#     section = [0]
+#     for c in cnts:
+#         if(cv2.arcLength(c,True) > maxHeight*.5):
+#             section.append(c[0,0,0])
+
+#     section = sorted(section)
+#     section.append(img.shape[1])
+
+#     return img, section
 
 def zeroRowCount(img):
     count = 0
@@ -270,47 +315,144 @@ def computeSection(left,right,maxHeight,img):
     grouped.reverse()
     return grouped,actualImg
 
-def findNumbers(group,img):
+def findNumbers(glist,img):
 #finds n many numbers inside of box
-    group = sorted(group, key=lambda c: cv2.boundingRect(c)[0])
-    group.reverse()
-    # print(f"group size {len(group)}")
-    # print(cv2.boundingRect(group[0])[0])
-    if( cv2.boundingRect(group[0])[0] < (600-xval)):
-        return            
-    val = len(group)
-    for i, j in enumerate(group[:-1]):
-        # print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])}")
-        if (cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])) > 30:
-            val = i+1
-            break
-    # print(f"val {val} group size {len(group)}")
-    group = group[0:val]
-    group.reverse()
+    width = img.shape[1]
+    height = img.shape[0]
+    glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
+    glist.reverse()
+    #print(cv2.boundingRect(glist[0])[0])
+    #plt.imshow(img)
+    #plt.show()
+    if( cv2.boundingRect(glist[0])[0] < (600-xval)):
+        return 
+    val = len(glist)
+
+    #print(cv2.boundingRect(glist[val-1])[0])
+    #print(cv2.boundingRect(glist[val-1])[1])
+
+    for i, j in enumerate(glist[:-1]):
+        #print(cv2.boundingRect(glist[0])[0])
+        #print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])}")
+        #if (cv2.boundingRect(j)[0] - (cv2.boundingRect(glist[i+1])[0] + cv2.boundingRect(glist[i+1])[2])) > 30:
+            #val = i+1
+            #break
+        
+        if (cv2.boundingRect(j)[1] < height * 0.36):
+            if (cv2.boundingRect(j)[0] < width * 0.61):
+                val = i+1
+                break
+        elif (cv2.boundingRect(j)[1] < height * 0.60):
+            if (cv2.boundingRect(j)[0] < width * 0.63):
+                val = i+1
+                break
+        else:
+            if (cv2.boundingRect(j)[0] < width * 0.47):
+                val = i+1
+                break
+
+        #print(cv2.boundingRect(j)[0])
+        #print(cv2.boundingRect(j)[1])
+        #print()
+
+    #print(f"val {val} glist size {len(glist)}")
+    glist = glist[0:val]
+    glist.reverse()
     i=0
     groupArr = []
-    for c in group:
-        # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}\nheight: {cv2.boundingRect(c)[3]}")
+    for c in glist:
+        #print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}\nheight: {cv2.boundingRect(c)[3]}")
         if cv2.contourArea(c) < cv2.arcLength(c,True) or (cv2.contourArea(c) <= 200 and cv2.boundingRect(c)[3] < cv2.arcLength(c,True)/3):
             continue
         x,y,w,h = cv2.boundingRect(c)
         finalimg = img[y:y+h,x:x+w]
+        
+        M = cv2.moments(c)
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        #print(cx)
+        #print(cy)
+        #print("\n")
+        if (cy < height * 0.36):
+            if (cx < width * 0.61):
+                continue
+        elif (cy < height * 0.60):
+            if (cx < width * 0.63):
+                continue
+        else:
+            if (cx < width * 0.47):
+                continue
+        
         finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
+
+        finalimg = padToSquare(finalimg)
+        
         #finalimg = np.invert(finalimg)
         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
-        #TODO
-        # plt.imshow(finalimg)
-        # plt.show()
+
         #makes image MNIST size
         finalimg = cv2.resize(finalimg,(28,28))
+        #plt.imshow(finalimg)
+        #plt.show()
         finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
-        (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        #plt.imshow(finalimg)
+        #plt.show()
+        (thresh, finalimg) = cv2.threshold(finalimg, 1, 255, cv2.THRESH_BINARY)
+        #plt.imshow(finalimg)
+        #plt.show()
         if zeroRowCount(finalimg) > 21:
             continue
+        #plt.imshow(finalimg)
+        #plt.show()
         groupArr.append(finalimg)
-    if(len(groupArr) == 0):
-        return
+    if len(groupArr) == 0:
+        return None
     return groupArr
+            # cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
+            # i+=1
+
+# def findNumbers(group,img):
+# #finds n many numbers inside of box
+
+#     group = sorted(group, key=lambda c: cv2.boundingRect(c)[0])
+#     group.reverse()
+#     # print(f"group size {len(group)}")
+#     # print(cv2.boundingRect(group[0])[0])
+#     if( cv2.boundingRect(group[0])[0] < (600-xval)):
+#         return            
+#     val = len(group)
+#     for i, j in enumerate(group[:-1]):
+#         # print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])}")
+#         if (cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])) > 30:
+#             val = i+1
+#             break
+#     # print(f"val {val} group size {len(group)}")
+#     group = group[0:val]
+#     group.reverse()
+#     i=0
+#     groupArr = []
+#     for c in group:
+#         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}\nheight: {cv2.boundingRect(c)[3]}")
+#         if cv2.contourArea(c) < cv2.arcLength(c,True) or (cv2.contourArea(c) <= 200 and cv2.boundingRect(c)[3] < cv2.arcLength(c,True)/3):
+#             continue
+#         x,y,w,h = cv2.boundingRect(c)
+#         finalimg = img[y:y+h,x:x+w]
+#         finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
+#         #finalimg = np.invert(finalimg)
+#         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
+#         #TODO
+#         # plt.imshow(finalimg)
+#         # plt.show()
+#         #makes image MNIST size
+#         finalimg = cv2.resize(finalimg,(28,28))
+#         finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
+#         (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+#         if zeroRowCount(finalimg) > 21:
+#             continue
+#         groupArr.append(finalimg)
+#     if(len(groupArr) == 0):
+#         return
+#     return groupArr
 
 def makePrediction(img,model):
     transform = transforms.ToTensor()
@@ -358,21 +500,23 @@ def docFind(imgData):
 def fullProcess(img):
 
     img = resizeImage(img)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, c = findCorners(img)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, corners = straightenImage(img, c)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, maxHeight = centerImage(img, corners)
-    # plt.imshow(img)
-    # plt.show()
+    plt.imshow(img)
+    plt.show()
     img, cnts = findContours(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, section = findSections(img, cnts,maxHeight)
+    plt.imshow(img)
+    plt.show()
+    img, section = findSections(img, cnts)
+    plt.imshow(img)
+    plt.show()
     print(section)
     # plt.imshow(img)
     # plt.show()
