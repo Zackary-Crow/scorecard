@@ -67,35 +67,29 @@ def order_points(pts):
     return rect.astype('int').tolist()
 
 def findCorners(img):
-    # threshold black and white
     timg = img.copy()
+    # threshold black and white
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     T_, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-   
-
+    
     img = cv2.bilateralFilter(img, 9, 75, 75)
-   
-
+    
     # Create black and white image based on adaptive threshold
     img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 4)
-  
-
+    
     # Median filter clears small details
     img = cv2.medianBlur(img, 11)
-  
-
+    
     # Add black border in case that page is touching an image border
-    img = cv2.copyMakeBorder(img, 5, 5, 5, 5, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+    #img = cv2.copyMakeBorder(img, 5, 5, 5, 5, cv2.BORDER_CONSTANT, value=[0, 0, 0])
 
     edges = cv2.Canny(img, 200, 250)
- 
 
-    con = np.zeros_like(img)
     contours, hierarchy = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Keeping only the largest detected contour.
     page = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
 
-    
+    con = np.zeros_like(img)
     # Loop over the contours.
     for c in page:
         # Approximate the contour.
@@ -103,26 +97,23 @@ def findCorners(img):
         corners = cv2.approxPolyDP(c, epsilon, True)
         # If our approximated contour has four points
         if len(corners) == 4:
-            # return c
             break
-    # cv2.drawContours(con, c, -1, (0, 255, 255), 3)
-    # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
-    # plt.imshow(con)
-    # plt.show()
+    cv2.drawContours(con, c, -1, (0, 255, 255), 3)
+    cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
 
-    # for corner in corners:
-    #     x, y = corner.ravel()
-    #     cv2.circle(timg,(int(x),int(y)),50,(36,255,12),-1)
-    
-    return timg,c
+    #for corner in corners:
+        #x, y = corner.ravel()
+        #cv2.circle(img,(int(x),int(y)),50,(36,255,12),-1)
+    #plt.imshow(img)
+    #plt.show()
+    return timg, corners
 
-def straightenImage(img, c):
-    epsilon = 0.02 * cv2.arcLength(c, True)
-    corners = cv2.approxPolyDP(c, epsilon, True)
-    x1, y1 = corners[1].ravel()
-    print(x1,y1)
-    x2, y2 = corners[2].ravel()
-    print(x2,y2)
+
+def straightenImage(img, corners):
+    corners = sorted(np.concatenate(corners).tolist())
+    corners = order_points(corners)
+    x1, y1 = corners[3]
+    x2, y2 = corners[2]
 
     angle = math.atan2( y2 - y1, x2 - x1 ) * ( 180 / math.pi )
 
@@ -130,19 +121,18 @@ def straightenImage(img, c):
 
     # rotate corners by calculated angle about center of image
     for corner in corners:
-        x = corner[0][0] - img.shape[1] / 2
-        y = corner[0][1] - img.shape[0] / 2
+        x = corner[0] - img.shape[1] / 2
+        y = corner[1] - img.shape[0] / 2
 
-        corner[0][0] = x * math.cos(math.radians(-angle)) - y * math.sin(math.radians(-angle)) + img.shape[1] / 2
-        corner[0][1] = y * math.cos(math.radians(-angle)) + x * math.sin(math.radians(-angle)) + img.shape[0] / 2
-        # cv2.circle(img,(int(corner[0][0]),int(corner[0][1])),50,(36,255,12),-1)
+        corner[0] = x * math.cos(math.radians(-angle)) - y * math.sin(math.radians(-angle)) + img.shape[1] / 2
+        corner[1] = y * math.cos(math.radians(-angle)) + x * math.sin(math.radians(-angle)) + img.shape[0] / 2
+        cv2.circle(img,(int(corner[0]),int(corner[1])),50,(36,255,12),-1)
     return img, corners
+
 
 def centerImage(img, corners):
     # Sorting the corners and converting them to desired shape.
-    corners = sorted(np.concatenate(corners).tolist())
-
-    pts = order_points(corners)
+    pts = corners
 
     (tl, tr, br, bl) = pts
 
@@ -535,23 +525,23 @@ def afterFind(img,section,maxHeight):
 def fullProcess(img):
 
     img = resizeImage(img)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, c = findCorners(img)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, corners = straightenImage(img, c)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, maxHeight = centerImage(img, corners)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, cnts = findContours(img)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     img, section = findSections(img, cnts)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
     print(section)
     # plt.imshow(img)
     # plt.show()

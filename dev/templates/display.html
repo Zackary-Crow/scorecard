@@ -19,34 +19,46 @@
             {% comment %} {% for item in rider%}
           <li><label></label><input type="text" value="{{item}}" /></li>
           {% endfor %} {% endcomment %}
+          
         </form>
         {% endfor %}
       </div>
       <p>Ride Time of Winner</p>
-      <input id="rideWinner" type="text" value="Infinity"/>
+      <input id="rideWinner" type="number" :value="Number.MAX_SAFE_INTEGER"/>
       <p>Heaviest Rider</p>
-      <input id="rideWeight" type="text" value="0"/>
+      <input id="rideWeight" type="number" value="0"/>
       
       {% comment %} <input id="rideWeight" type="text" :value="Math.min(...[...document.querySelectorAll(&quot;[id='Ride Time'] > input&quot;)].map(a=>a.value))"/> {% endcomment %}
 
     </div>
   </div>
   <script>
+    var rideWinnerTime
+    var rideWinnerWeight
+
+
+
     var rideWinner = document.querySelector('#rideWinner')
     document.querySelectorAll("[id='Ride Time'] > input").forEach(el=>{
-        if(el.value < rideWinner.value)
+        if(Number(el.value) < Number(rideWinner.value)){
             rideWinner.value = el.value
+            window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner.value}))
+        } 
         el.addEventListener('input', () => {
             rideWinner.value = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))
+            window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner.value}))
         })
     }
     )
     var rideWeight = document.querySelector('#rideWeight')
     document.querySelectorAll("[id='Weight'] > input").forEach(el=>{
-        if(el.value > rideWeight.value)
+        if(Number(el.value) > Number(rideWeight.value)){
             rideWeight.value = el.value
+            window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight.value}))
+        }
         el.addEventListener('input', () => {
             rideWeight.value = Math.max(...[...document.querySelectorAll("[id='Weight'] > input")].map(a=>a.value))
+            window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight.value}))
         })
     }
     )

@@ -15,5 +15,9 @@
     </div>
   </template>
   <p>Veterinary Score</p>
-  <input type="text" :value="getValue(cards.slice(0,4))" />
+  <input type="number" :value="(getValue(cards.slice(0,5)) * 10).toFixed()" />
+  <p>Ride Difference</p>
+  <input type="number" @winnertime.window ="$el.value = cards[5].value - event.detail;" />
+  <p>Weight Difference</p>
+  <input type="number" @winnerweight.window ="$el.value = cards[6].value - event.detail;"/>
 </div>
