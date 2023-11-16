@@ -295,6 +295,7 @@ body::before {
 
 h3 {
   border-bottom: 2px solid #000;
+  display:block;
 }
 
 .tab {
@@ -337,25 +338,39 @@ h3 {
 #form-container {
   display: flex;
   justify-content: space-between;
-  padding: 5px;
+  align-items: center;
 }
 
 #form {
-  padding: 5px;
+  padding-left: 25px;
   width: 20%;
-  border-left: 1px solid #000;
+  border: 1px solid #000;
 }
 
 li {
-  display: flex; /* Use flex layout for label and input alignment */
-  align-items: left; /* Vertically center label and input */
-  margin-bottom: 10px; /* Adjust the margin as needed */
+  display: flex;
+  align-items: left;
+  margin-bottom: 10px;
   font-size: 15px;
 }
 
 p {
   font-weight: bold;
   font-size: 20px;
+}
+
+.button-container3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+}
+
+#update-button, #calculate-button {
+  font-size: 30px;
+  font-family: Roboto Flex;
+  border-radius: 10px
 }
 
 @media (max-width: 1688px) {

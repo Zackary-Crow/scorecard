@@ -24,6 +24,12 @@
             </div>            
         </header>
         <br>
+        <div class = "miniheader">WINNER!</div>
+        <br><br>
+        <div class = "Spam" style = "align-items: center; justify-content: center; display: flex;">
+            <div class = "data-spam" ></div>
+        </div>
+        <br>
 
         <script>
             const toggleDark = document.getElementById('light-dark');
@@ -38,26 +44,37 @@
                 const currentText = body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
                 toggleDark.textContent = currentText;
             }
-            function openCard(evt, cityName) {
-                var i, tabcontent, tablinks;
-                const imageElement = document.getElementById('image');
-                // Get all elements with class = "tabcontent" and hide them
-                tabcontent = document.getElementsByClassName("tab-content");
-                for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
-                }
-
-                // Get all elements with class="tablinks" and remove the class "active"
-                tablinks = document.getElementsByClassName("tab-links");
-                for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].className = tablinks[i].className.replace(" active", "");
-                }
-
-                // Show the current tab, and add an "active" class to the button that opened the tab
-                document.getElementById(cityName).style.display = "block";
-                evt.currentTarget.className += " active";
-                imageElement.style.display = 'block';
+            //parses the json data, calculates the results, and displays
+            function loadResults(jsonData) {
+                const spamm = document.getElementsByClassName('data-spam')[0];
+                const riderData = jsonData.scorecards[0].riders;
+                const p = document.createElement('p');
+                const x = document.createElement('p');
+                const y = document.createElement('p');
+                const z = document.createElement('p');
+                p.style.display = 'block';
+                x.style.display = 'block';
+                y.style.display = 'block';
+                p.style.alignItems = 'center';
+                p.style.justifyContent = 'center';
+                p.textContent = riderData[0].rider_name;
+                spamm.appendChild(p);
+                x.textContent = `Scorecard ${jsonData.scorecards[0].scorecard_id}`;
+                y.textContent = `Rider 1`;
+                z.textContent = `Ride Time: ${riderData[0].ride_time}`;
+                spamm.appendChild(x);
+                spamm.appendChild(y);
+                spamm.appendChild(z);
             }
+            //accesses json data from the parent window
+            document.addEventListener('DOMContentLoaded', function () {
+                const jsonData = window.opener.jsonData;
+
+                if(!jsonData) {
+                    console.error('Error retrieving info, please retry.');
+                }
+                loadResults(jsonData);
+            });
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     </body>
