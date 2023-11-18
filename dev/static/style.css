@@ -355,7 +355,6 @@ p {
   font-size: 20px;
 }
 
-<<<<<<< HEAD:dev/static/style.css
  
 .tab-container {
   display: flex;
@@ -427,20 +426,6 @@ li {
 p {
   font-weight: bold;
   font-size: 20px;
-=======
-.button-container3 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding-bottom: 20px;
-}
-
-#update-button, #calculate-button {
-  font-size: 30px;
-  font-family: Roboto Flex;
-  border-radius: 10px
->>>>>>> bde31d2 (Display/Results page interaction):css/styles.css
 }
 
 @media (max-width: 1688px) {
