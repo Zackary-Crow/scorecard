@@ -22,11 +22,13 @@ It's always a good practice to use a virtual environment to manage project depen
 # Install virtualenv package
 pip install virtualenv
 # Create a virtual environment
-virtualenv [path]/[enviroment name]
+virtualenv [path]/[environment name]
 
 # Activate the virtual environment
-# On Windows
-[path]\[enviroment name]\Scripts\activate
+# On Windows 10
+[path]\[environment name]\Scripts\activate
+# On Windows 11
+[path]\[environment name]\bin\activate
 
 # This will enter your current terminal into the newly created virtual environment
 ```
