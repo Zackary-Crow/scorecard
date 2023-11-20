@@ -1,84 +1,87 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
 
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+<div
+  id="modals-here"
+  class="modal modal-blur fade"
+  style="display: none"
+  aria-hidden="false"
+  tabindex="-1"
+  hx-swap-oob="innerHTML"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div
+  id="toast"
+  class="toast"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+ 
+>
+  <div class="toast-body"></div>
+</div>
+<br />
+<div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
+<br />
+<div class="miniheader">Upload or snap a photo of it below!</div>
+<br /><br />
 
-<div id="modals-here"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1"
-    hx-swap-oob="innerHTML"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-          <div class="modal-content"></div>
-      </div>
-    </div>
-    <br />
-    <div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
-    <br />
-    <div class="miniheader">Upload or snap a photo of it below!</div>
-    <br /><br />
-
-    <div style="margin: auto; width: 50%; text-align: center">
-      <a
-        href="#sedraImage"
-        onclick="document.querySelector('.overlay').showModal()"
-        >South Eastern Distance Riders Association Scorecard Example</a
-      >
-      <br />
-      <a
-        href="#aercImage"
-        onclick="document.querySelector('.overlay').showModal()"
-        >American Endurance Ride Conference Evaluation Example</a
-      >
-    </div>
-    <dialog class="overlay" onclick="this.close()">
-      <img
-        id="sedraImage"
-        class="popupImg"
-        src="{% static 'images/SEDRAcard.png' %}"
-      />
-      <img
-        id="aercImage"
-        class="popupImg"
-        src="{% static 'images/AERCcard.png' %}"
-      />
-    </dialog>
-    <br />
-    <div class="filebox-container">
-      <div class="filebox">
-        <div
-          id="drop-zone"
-          class="dottedfill"
-          hx-trigger="drop"
-          hx-post="/upload"
-          ondrop="event.preventDefault();
+<div style="margin: auto; width: 50%; text-align: center">
+  <a href="#sedraImage" onclick="document.querySelector('.overlay').showModal()"
+    >South Eastern Distance Riders Association Scorecard Example</a
+  >
+  <br />
+  <a href="#aercImage" onclick="document.querySelector('.overlay').showModal()"
+    >American Endurance Ride Conference Evaluation Example</a
+  >
+</div>
+<dialog class="overlay" onclick="this.close()">
+  <img
+    id="sedraImage"
+    class="popupImg"
+    src="{% static 'images/SEDRAcard.png' %}"
+  />
+  <img
+    id="aercImage"
+    class="popupImg"
+    src="{% static 'images/AERCcard.png' %}"
+  />
+</dialog>
+<br />
+<div class="filebox-container">
+  <div class="filebox">
+    <div
+      id="drop-zone"
+      class="dottedfill"
+      ondrop="event.preventDefault();
           const files = document.querySelector('#files');
           files.files = event.dataTransfer.files; 
           console.log(files);
           const ul = document.querySelector('.fileList'); 
           ul.innerHTML ='';
           for(const f of event.dataTransfer.files){ul.innerHTML += '<li>'+f.name+'</li>';};"
-          ondragover="event.preventDefault()"
-        >
-          <a class="filedrop">Drag Your Files Here!</a>
-        </div>
-        <a class="or">Or</a>
-        <ul id="file-list"></ul>
-        <!-- TODO: Convert to Django -->
-        <div>
-        {% include 'partials/form.html'%}
-        </div>
-        <button id="photoButton" 
-                type="button"
-                onclick="event.preventDefault()"
-                hx-get="{% url 'api' %}"
-                hx-target="#modals-here"
-                data-bs-toggle="modal" 
-                data-bs-target="#modals-here"
-                > Take a Photo</button>
-      </div>
+      ondragover="event.preventDefault()"
+    >
+      <a class="filedrop">Drag Your Files Here!</a>
     </div>
+    <a class="or">Or</a>
+    <ul id="file-list"></ul>
+    <!-- TODO: Convert to Django -->
+    <div>{% include 'partials/form.html'%}</div>
+    <button
+      id="photoButton"
+      type="button"
+      onclick="event.preventDefault()"
+      hx-get="{% url 'api' %}"
+      hx-target="#modals-here"
+      data-bs-toggle="modal"
+      data-bs-target="#modals-here"
+    >
+      Take a Photo
+    </button>
+  </div>
+</div>
 
 {% endblock %}

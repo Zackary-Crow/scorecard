@@ -5,18 +5,17 @@
 >
     <label for="files"></label>
     <ul class="fileList"></ul>
-    {% comment %} <button
+    <button
     type="button"
     id="uploadButton"
-    onclick="this.children[0].click()"
+    onclick="document.querySelector('#files').click()"
     >
     Upload Files
-    <div style="display:none" onclick="this.children[0].click()">
+</button>
     
-    <div> {% endcomment %}
 
-    {{form.data}}
-    {% comment %} <input
+    {% comment %} {{form.data}} {% endcomment %}
+    <input
         id="files"
         oninput=" const ul = document.querySelector('.fileList'); 
                 ul.innerHTML ='';
@@ -26,7 +25,7 @@
         multiple
         name="files"
         style="display: none; margin: auto"
-    /> {% endcomment %}
+    />
     </button>
     <button id="uploadButton">Submit</button>
 </form>

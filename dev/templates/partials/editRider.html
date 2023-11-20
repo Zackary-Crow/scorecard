@@ -2,14 +2,14 @@
   <template x-for="(c,i) in cards">
     <div :id="getTitle(i)">
       <p x-text="getTitle(i)"></p>
-      <input type="text" x-model="c.value" />
+      <input type="number" x-model="c.value" />
       <button
         type="button"
         class="btn-close"
         aria-label="Close"
         @click="cards.splice(i,1)"
       ></button>
-      <button type="button" @click="cards.splice(i,0,{ value: 'n'})">
+      <button type="button" @click="cards.splice(i,0,{ value: 'n'});">
         <i class="fa-solid fa-plus"></i>
       </button>
     </div>
