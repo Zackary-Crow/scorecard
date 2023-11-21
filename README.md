@@ -14,9 +14,16 @@ Make sure you have the following prerequisites installed on your machine:
 
 - Python 3.10.11 [Download](https://www.python.org/downloads/release/python-31011/)
 
-### Setting up a Virtual Environment (Optional)
+### Setting up a Virtual Environment (Recommended but Optional)
+#### Warning
+It's always a good practice to use a virtual environment to manage project dependencies.
 
-It's always a good practice to use a virtual environment to manage project dependencies. Follow these steps to set up a virtual environment:
+If you do not use a virtual environment then any conflicting global dependencies will be updated.
+
+This can potentially break other projects that rely on an older version of the replaced dependency. 
+
+#### Configuration
+Follow these steps to set up a virtual environment:
 
 ```bash
 # Install virtualenv package
@@ -66,5 +73,5 @@ Starting ASGI/Daphne version 4.0.0 development server at http://127.0.0.1:8000/
 Quit the server with CTRL-BREAK.
 ```
 
-Using the listed IP and port you can not connect to the webpage and interact with the page
+Using the listed IP and port you can connect to the webpage and interact with the page
 
