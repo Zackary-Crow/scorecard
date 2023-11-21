@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 generated/
 staticfiles/
-*.pyc
+**.pyc
