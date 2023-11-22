@@ -11,17 +11,36 @@
   </div>
   <div class="tab-container" style="padding-bottom: 100px">
     <div id="card" class="tab-content">
-      <div id="form-container">
-        {% for rider in riders %}
+      <div id="form-container" x-data="{listRider: {{riders}}}">
+        <template x-effect="console.log(listRider)" x-for="(rider,index) in listRider" :key="index">
         <form>
-          <p>Rider {{forloop.counter}}</p>
-          {% include 'partials/editRider.html' with values=rider %}
-            {% comment %} {% for item in rider%}
-          <li><label></label><input type="text" value="{{item}}" /></li>
-          {% endfor %} {% endcomment %}
+          <p>Rider <p x-effect="console.log(rider)" x-text="index"></p>
+            <div x-data="{labels: ['Recovery','Hydration','Lesions','Soundness','Qual Movement','Ride Time','Weight'] }">
+            <template x-for="(l,i) in labels">
+              <div :id="l">
+                <p x-text="l"></p>
+                <input type="number" x-model="rider[i].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(i,1)"
+                ></button>
+                <button type="button" @click="rider.splice(i,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </template>
+            </div>  
+            <p>Veterinary Score</p>
+            <input type="number" :value="(getValue(rider.slice(0,5)) * 10).toFixed()" />
+            <p>Ride Difference</p>
+            <input type="number" @winnertime.window ="$el.value = (rider[5].value - event.detail).toFixed();" />
+            <p>Weight Difference</p>
+            <input type="number" @winnerweight.window ="$el.value = (rider[6].value - event.detail).toFixed();"/>
           
         </form>
-        {% endfor %}
+      </template>
       </div>
       <p>Ride Time of Winner</p>
       <input id="rideWinner" type="number" :value="Number.MAX_SAFE_INTEGER"/>

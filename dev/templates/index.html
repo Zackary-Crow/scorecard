@@ -55,32 +55,54 @@
     <div
       id="drop-zone"
       class="dottedfill"
-      ondrop="event.preventDefault();
-          const files = document.querySelector('#files');
-          files.files = event.dataTransfer.files; 
-          console.log(files);
-          const ul = document.querySelector('.fileList'); 
-          ul.innerHTML ='';
-          for(const f of event.dataTransfer.files){ul.innerHTML += '<li>'+f.name+'</li>';};"
       ondragover="event.preventDefault()"
+      ondrop="
+          event.preventDefault();
+          const files = document.querySelector('#files');
+          files.files = event.dataTransfer.files;
+          files.dispatchEvent(new CustomEvent('change'))
+          "
     >
       <a class="filedrop">Drag Your Files Here!</a>
     </div>
     <a class="or">Or</a>
-    <ul id="file-list"></ul>
-    <!-- TODO: Convert to Django -->
-    <div>{% include 'partials/form.html'%}</div>
+    <form
+    x-data="{fileList:null}"
+    id="file-upload"
+    hx-encoding="multipart/form-data"
+    hx-post="{% url 'api' %}"
+    hx-swap="false"
+>
+    <label for="files"></label>
+    <ul x-effect="console.log(fileList.length)" class="fileList">
+        <template x-for="f in fileList">
+            <img :src="URL.createObjectURL(f)" height = "120px"></img>
+            <li x-text = "f.name"></li>
+        </template>
+    </ul>
     <button
-      id="photoButton"
-      type="button"
-      onclick="event.preventDefault()"
-      hx-get="{% url 'api' %}"
-      hx-target="#modals-here"
-      data-bs-toggle="modal"
-      data-bs-target="#modals-here"
+    type="button"
+    id="uploadButton"
+    onclick="document.querySelector('#files').click()"
     >
-      Take a Photo
+    Take Photo / Upload Files
     </button>
+
+    {% comment %} {{form.data}} {% endcomment %}
+    <input
+        id="files"
+        @change="fileList = $el.files; console.log('change has happened')"
+        type="file"
+        accept="image/*"
+        multiple
+        name="files"
+        style="display: none; margin: auto"
+    />
+    </button>
+    <button id="uploadButton">Submit</button>
+</form>
+    <!-- TODO: Convert to Django -->
+    {% comment %} <div>{% include 'partials/form.html'%}</div> {% endcomment %}
   </div>
 </div>
 
