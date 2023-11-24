@@ -307,6 +307,7 @@ def computeSection(left,right,maxHeight,img):
 
 def findNumbers(glist,img):
 #finds n many numbers inside of box
+    fullSize = []
     width = img.shape[1]
     height = img.shape[0]
     glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
@@ -315,7 +316,7 @@ def findNumbers(glist,img):
     #plt.imshow(img)
     #plt.show()
     if( cv2.boundingRect(glist[0])[0] < (600-xval)):
-        return 
+        return None, None
     val = len(glist)
 
     #print(cv2.boundingRect(glist[val-1])[0])
@@ -377,6 +378,7 @@ def findNumbers(glist,img):
 
         finalimg = padToSquare(finalimg)
         
+        fullSize.append(finalimg)
         #finalimg = np.invert(finalimg)
         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
 
@@ -396,8 +398,8 @@ def findNumbers(glist,img):
         #plt.show()
         groupArr.append(finalimg)
     if len(groupArr) == 0:
-        return None
-    return groupArr
+        return None, None
+    return groupArr, fullSize
             # cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
             # i+=1
 
@@ -522,69 +524,73 @@ def afterFind(img,section,maxHeight):
 ###########################################
 
 # img = cv2.imread("src/python/darkLandscapeScan.jpg")
-def fullProcess(img):
+def fullProcess(img,blueink=False):
 
     debugImg = []
-
-    img = resizeImage(img)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, c = findCorners(img)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, corners = straightenImage(img, c)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, maxHeight = centerImage(img, corners)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, cnts = findContours(img)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, section = findSections(img, cnts)
-    debugImg.append(img)
-    # plt.imshow(img)
-    # plt.show()
-    print(section)
-    # plt.imshow(img)
-    # plt.show()
-    predictions = []
-    riderArr = []
-    for i,j in enumerate(section[:-1]):
-        # print(f"section {i}")
-        groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
-        # plt.imshow(sectionImg)
+    try:
+        img = resizeImage(img)
+        # debugImg.append(img)
+        # plt.imshow(img)
         # plt.show()
-        groupArr = []
-        for k,group in enumerate(groups):
-            arr = findNumbers(group,sectionImg)
-            if arr == None:
-                continue
-            # print(f"group {k} arr size {len(arr)}")
-            item = []
-            for digit in arr:
-                val = makePrediction(digit,model)
-                item.append(val)
-            if len(item) > 3:
-                continue
-            if len(item) == 2:
-                groupArr.append({"value":item[0]+(item[1]/10)})
-            else:
-                groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
-            # print(groupArr)
-        riderArr.append(groupArr)
+        img, c = findCorners(img)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, corners = straightenImage(img, c)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, maxHeight = centerImage(img, corners)
+        # debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, cnts = findContours(img)
+        # debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, section = findSections(img, cnts)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        # plt.imshow(img)
+        # plt.show()
+        predictions = []
+        riderArr = []
+        for i,j in enumerate(section[:-1]):
+            # print(f"section {i}")
+            groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
+
+            debugImg.append(sectionImg)
+            # plt.imshow(sectionImg)
+            # plt.show()
+            groupArr = []
+            for k,group in enumerate(groups):
+                arr,fullDebug = findNumbers(group,sectionImg)
+                if arr == None:
+                    continue
+                print(f"arr type {type(arr)} debug type {type(fullDebug)}")
+                item = []
+                for digit, fullDigit in zip(arr,fullDebug):
+                    debugImg.append(fullDigit)
+                    val = makePrediction(digit,model)
+                    item.append(val)
+                if len(item) > 3:
+                    continue
+                if len(item) == 2:
+                    groupArr.append({"value":item[0]+(item[1]/10)})
+                else:
+                    groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
+                # print(groupArr)
+            riderArr.append(groupArr)
+            
         
-    
-    return riderArr, debugImg
-        
+        return riderArr, debugImg
+    except:
+        return None, debugImg
+            
 
 
-###########################################
+    ###########################################
 
-    # plt.imshow(img)
-    # plt.show()
+        # plt.imshow(img)
+        # plt.show()

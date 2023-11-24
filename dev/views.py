@@ -31,24 +31,27 @@ def api(request):
             img = np.array(Image.open(file).convert('RGB'))
             try:
                 if ("blueink" + str(i)) in inputBox:
-                    print("done blue")
-                results, debug = ocr.fullProcess(img)
+                    results, debug = ocr.fullProcess(img, blueink=True)
+                else:    
+                    results, debug = ocr.fullProcess(img)
                 if ("debug") in inputBox:
                     currDebug = []
                     for d in debug:
-                        _, buffer = cv2.imencode('.png', d)
+                        smallD = cv2.resize(d, (0, 0), fx = 0.5, fy = 0.5)
+                        _, buffer = cv2.imencode('.jpeg', smallD, [int(cv2.IMWRITE_JPEG_QUALITY), 60])
                         currDebug.append(base64.b64encode(buffer).decode('utf-8'))
                     debugList.append(currDebug)
-                    
-                scorecards.append(results)
+                if(results == None):
+                    raise Exception()
+                scorecards.append({'status':'ok','valueList':results})
             except Exception as e:
-                print(f"Error on form {i}")
                 print(e)
-                return render(request, 'partials/toast.html', {'message':"There has been an error with your form"})
+                scorecards.append({'status':'error','valueList':{}})
+                # return render(request, 'partials/toast.html', {'message':"There has been an error with your form"})
         # if form.is_valid():
         #     form.save()
         print(scorecards)
-
+        print(debugList)
         return render(request, 'display.html', {'scorecards':scorecards, 'debug':debugList})
         
         

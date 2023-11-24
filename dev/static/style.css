@@ -416,6 +416,11 @@ h3 {
   border-left: 1px solid #000;
 }
 
+form p {
+  display: block;
+}
+
+
 li {
   display: flex; /* Use flex layout for label and input alignment */
   align-items: left; /* Vertically center label and input */
@@ -428,6 +433,10 @@ p {
   font-size: 20px;
   display: inline-block;
   margin: 0px
+}
+
+#error {
+  background-color: yellow;
 }
 
 .previewImg img { display: none; }
