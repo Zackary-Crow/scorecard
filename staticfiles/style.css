@@ -5,6 +5,7 @@ body {
   background-color: var(--background-color);
 }
 
+
 :root {
   --width: 0;
   --background-color: #F0EBE5;
