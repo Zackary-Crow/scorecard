@@ -303,27 +303,8 @@ h3 {
   background-color: #f1f1f1;
 }
 
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  border-right: 2px solid #000;
-}
-
-.tab button:hover {
-  background-color: #393939;
-}
-
-.tab button.active {
-  background-color: #7DA582;
-}
-
 .tab-content {
-  display: none;
+  display: block;
   width: 75%;
   height: 40%;
   padding: 6px 12px;
@@ -356,19 +337,15 @@ p {
   font-size: 20px;
 }
 
-.button-container3 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding-bottom: 20px;
-}
-
 #update-button, #calculate-button {
   font-size: 30px;
   font-family: Roboto Flex;
   border-radius: 10px
 }
+
+.previewImg img {display:block;}
+.previewImg p:hover img {display:block;}
+.previewImg img:hover {display:block;} 
 
 @media (max-width: 1688px) {
   body::before {
