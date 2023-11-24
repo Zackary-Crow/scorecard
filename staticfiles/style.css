@@ -313,10 +313,15 @@ h3 {
   border-top: none;
 }
 
+#error {
+  background-color: yellow;
+}
+
 #form-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  overflow: auto;
 }
 
 #form {
@@ -343,7 +348,7 @@ p {
   border-radius: 10px
 }
 
-.previewImg img {display:block;}
+.previewImg img {display:none;}
 .previewImg p:hover img {display:block;}
 .previewImg img:hover {display:block;} 
 
