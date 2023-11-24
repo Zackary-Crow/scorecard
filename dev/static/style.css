@@ -302,18 +302,6 @@ h3 {
   background-color: #f1f1f1;
 }
 
-#form-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#form {
-  padding-left: 25px;
-  width: 20%;
-  border: 1px solid #000;
-}
-
  
 .tab-container {
   display: flex;
@@ -325,6 +313,8 @@ h3 {
   border-bottom: 2px solid #000;
 }
 
+
+
 .tab-content {
   display: block;
   width: 75%;
@@ -335,9 +325,23 @@ h3 {
   border-top: none;
 }
 
+#form-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  overflow: auto;
+}
+
+#form {
+  padding: 5px;
+  width: 20%;
+  border-left: 1px solid #000;
+}
+
 form p {
   display: block;
 }
+
 
 li {
   display: flex; /* Use flex layout for label and input alignment */
@@ -357,9 +361,15 @@ p {
   background-color: yellow;
 }
 
-.previewImg img { display: none; }
-.previewImg p:hover ~ img { display: block; }
-.previewImg img:hover { display: block; }
+.previewImg img { 
+  display: none; 
+}
+.previewImg p:hover + img {
+  display: block; 
+}
+.previewImg img:hover {
+  display: block; 
+}
 
 @media (max-width: 1688px) {
   body::before {
