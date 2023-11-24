@@ -302,35 +302,6 @@ h3 {
   background-color: #f1f1f1;
 }
 
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  border-right: 2px solid #000;
-}
-
-.tab button:hover {
-  background-color: #393939;
-}
-
-.tab button.active {
-  background-color: #7DA582;
-}
-
-.tab-content {
-  display: none;
-  width: 75%;
-  height: 40%;
-  padding: 6px 12px;
-  border: 2px solid #000;
-  background-color: #f1f1f1;
-  border-top: none;
-}
-
 #form-container {
   display: flex;
   justify-content: space-between;
@@ -341,18 +312,6 @@ h3 {
   padding-left: 25px;
   width: 20%;
   border: 1px solid #000;
-}
-
-li {
-  display: flex;
-  align-items: left;
-  margin-bottom: 10px;
-  font-size: 15px;
-}
-
-p {
-  font-weight: bold;
-  font-size: 20px;
 }
 
  
@@ -366,33 +325,6 @@ h3 {
   border-bottom: 2px solid #000;
 }
 
-.tab {
-  width: 75%;
-  height: 40%;
-  overflow: hidden;
-  border: 2px solid #000;
-  background-color: #f1f1f1;
-}
-
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  border-right: 2px solid #000;
-}
-
-.tab button:hover {
-  background-color: #393939;
-}
-
-.tab button.active {
-  background-color: #7DA582;
-}
-
 .tab-content {
   display: block;
   width: 75%;
@@ -403,23 +335,9 @@ h3 {
   border-top: none;
 }
 
-#form-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px;
-  overflow: auto;
-}
-
-#form {
-  padding: 5px;
-  width: 20%;
-  border-left: 1px solid #000;
-}
-
 form p {
   display: block;
 }
-
 
 li {
   display: flex; /* Use flex layout for label and input alignment */
