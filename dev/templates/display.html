@@ -1,58 +1,162 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 <div id="main">
-  <div id="json-data"></div>
+  <div x-data="{temp={{debug}}}" id="json-data"></div>
   <br />
   <div class="miniheader">
     Please assess and correct any incorrect values below.
   </div>
   <br /><br />
-  <div class="tab-container">
-    <div class="tab" id="tabs"></div>
+  <div class="tab-content">
+    <ul class="nav nav-tabs" x-data="{scorecards: {{scorecards}}}">
+      <template x-for="(s,i) in scorecards">
+        <li class="nav-item">
+          <a class="nav-link" x-text="'Scorecard '+ (i+1)"></a>
+        </li>
+      </template>
+    </ul>
   </div>
   <div class="tab-container" style="padding-bottom: 100px">
     <div id="card" class="tab-content">
-      <div id="form-container" x-data="{listRider: {{riders}}}">
-        <template x-effect="console.log(listRider)" x-for="(rider,index) in listRider" :key="index">
-        <form>
-          <p>Rider <p x-effect="console.log(rider)" x-text="index"></p>
-            <div x-data="{labels: ['Recovery','Hydration','Lesions','Soundness','Qual Movement','Ride Time','Weight'] }">
-            <template x-for="(l,i) in labels">
-              <div :id="l">
-                <p x-text="l"></p>
-                <input type="number" x-model="rider[i].value" />
+      <div id="form-container" x-data="{listRider: {{scorecards}}[0]}">
+        <template
+          x-effect="console.log(listRider)"
+          x-for="(rider,index) in listRider"
+          :key="index"
+        >
+          <form>
+            <p>Rider <span x-text="index"></span></p>
+            <div class="SectionA">
+              <div id="Recovery">
+                <p>Recovery</p>
+                <input type="number" step="0.1" x-model="rider[0].value" />
                 <button
                   type="button"
                   class="btn-close"
                   aria-label="Close"
-                  @click="rider.splice(i,1)"
+                  @click="rider.splice(0,1)"
                 ></button>
-                <button type="button" @click="rider.splice(i,0,{ value: ''});">
+                <button type="button" @click="rider.splice(0,0,{ value: ''});">
                   <i class="fa-solid fa-plus"></i>
                 </button>
               </div>
-            </template>
-            </div>  
-            <p>Veterinary Score</p>
-            <input type="number" :value="(getValue(rider.slice(0,5)) * 10).toFixed()" />
-            <p>Ride Difference</p>
-            <input type="number" @winnertime.window ="$el.value = (rider[5].value - event.detail).toFixed();" />
-            <p>Weight Difference</p>
-            <input type="number" @winnerweight.window ="$el.value = (rider[6].value - event.detail).toFixed();"/>
-          
-        </form>
-      </template>
+              <div id="Hydration">
+                <p>Hydration</p>
+                <input type="number" step="0.1" x-model="rider[1].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(1,1)"
+                ></button>
+                <button type="button" @click="rider.splice(1,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div id="Lesions">
+                <p>Lesions</p>
+                <input type="number" step="0.1" x-model="rider[2].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(2,1)"
+                ></button>
+                <button type="button" @click="rider.splice(2,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div id="Soundness">
+                <p>Soundness</p>
+                <input type="number" step="0.1" x-model="rider[3].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(3,1)"
+                ></button>
+                <button type="button" @click="rider.splice(3,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div id="Qual Movement">
+                <p>Qual Movement</p>
+                <input type="number" step="0.1" x-model="rider[4].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(4,1)"
+                ></button>
+                <button type="button" @click="rider.splice(4,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <p>Veterinary Score</p>
+              <input
+                type="number"
+                :value="(getValue(rider.slice(0,5)) * 10).toFixed()"
+              />
+            </div>
+
+            <div class="SectionB">
+              <div id="Ride Time">
+                <p>Ride Time</p>
+                <input type="number" step="0.1" x-model="rider[5].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(5,1)"
+                ></button>
+                <button type="button" @click="rider.splice(5,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <p>Ride Difference</p>
+              <input
+                type="number"
+                @winnertime.window="$el.value = (rider[5].value - event.detail).toFixed();"
+              />
+            </div>
+            <div class="SectionC">
+              <div id="Weight">
+                <p>Weight</p>
+                <input type="number" step="0.1" x-model="rider[6].value" />
+                <button
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  @click="rider.splice(6,1)"
+                ></button>
+                <button type="button" @click="rider.splice(6,0,{ value: ''});">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <p>Weight Difference</p>
+              <input
+                type="number"
+                @winnerweight.window="$el.value = (rider[6].value - event.detail).toFixed();"
+              />
+            </div>
+          </form>
+        </template>
       </div>
       <p>Ride Time of Winner</p>
-      <input id="rideWinner" type="number" :value="Number.MAX_SAFE_INTEGER"/>
+      <input id="rideWinner" type="number" :value="Number.MAX_SAFE_INTEGER" />
       <p>Heaviest Rider</p>
-      <input id="rideWeight" type="number" value="0"/>
-      
-      {% comment %} <input id="rideWeight" type="text" :value="Math.min(...[...document.querySelectorAll(&quot;[id='Ride Time'] > input&quot;)].map(a=>a.value))"/> {% endcomment %}
+      <input id="rideWeight" type="number" value="0" />
 
+      {% comment %}
+      <input
+        id="rideWeight"
+        type="text"
+        :value="Math.min(...[...document.querySelectorAll(&quot;[id='Ride Time'] > input&quot;)].map(a=>a.value))"
+      />
+      {% endcomment %}
     </div>
   </div>
   <script>
-    
+
     const rideTimeHandler = () => {
       rideWinner.value = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))
       window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner.value}))
@@ -82,7 +186,7 @@
         if(Number(el.value) < Number(rideWinner.value)){
             rideWinner.value = el.value
             window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner.value}))
-        } 
+        }
         el.addEventListener('input', rideTimeHandler)
     }
     )
@@ -109,4 +213,4 @@
     ) {% endcomment %}
   </script>
   {% endblock %}
-
+</div>

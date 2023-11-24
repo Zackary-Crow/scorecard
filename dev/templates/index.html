@@ -67,19 +67,24 @@
     </div>
     <a class="or">Or</a>
     <form
-    x-data="{fileList:null}"
+    x-data="{fileList:document.querySelector('#files').files}"
     id="file-upload"
     hx-encoding="multipart/form-data"
     hx-post="{% url 'api' %}"
     hx-swap="false"
 >
     <label for="files"></label>
-    <ul x-effect="console.log(fileList.length)" class="fileList">
-        <template x-for="f in fileList">
-            <img :src="URL.createObjectURL(f)" height = "120px"></img>
-            <li x-text = "f.name"></li>
+    <div class="fileList">
+        <template x-for="(f,i) in fileList">
+                <div class = "previewImg">
+                  <p x-text ="f.name"></p>
+                  <label for ="blueink">Blue Ink</label>
+                  <input type = "checkbox" id="blueink" :name="'blueink' + i"/>
+                  <img :src="URL.createObjectURL(f)" width="50%" height="50%"/>
+                </div>
         </template>
-    </ul>
+    </div>
+    <p>Hover to Preview</p>
     <button
     type="button"
     id="uploadButton"
@@ -100,6 +105,10 @@
     />
     </button>
     <button id="uploadButton">Submit</button>
+
+    <label for ="debug">Debug Mode</label>
+    <input type ="checkbox" id="debug" name="debug" />
+
 </form>
     <!-- TODO: Convert to Django -->
     {% comment %} <div>{% include 'partials/form.html'%}</div> {% endcomment %}

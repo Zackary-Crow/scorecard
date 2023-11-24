@@ -426,7 +426,13 @@ li {
 p {
   font-weight: bold;
   font-size: 20px;
+  display: inline-block;
+  margin: 0px
 }
+
+.previewImg img { display: none; }
+.previewImg p:hover ~ img { display: block; }
+.previewImg img:hover { display: block; }
 
 @media (max-width: 1688px) {
   body::before {

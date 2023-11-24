@@ -287,7 +287,7 @@ def computeSection(left,right,maxHeight,img):
         if( cv2.contourArea(c) > cv2.arcLength(c,True)):
             x,y,w,h = cv2.boundingRect(c)
             list.append((c,y,y+h))
-    print(f"list size {len(list)}")
+    # print(f"list size {len(list)}")
     index = 0
     # for l in list:
         # print(str(l[1])+" "+str(l[2]))
@@ -460,7 +460,7 @@ def makePrediction(img,model):
             output = model(r)
         # print(output.shape)
         out = torch.add(out,output)
-    print(out)
+    # print(out)
     pred = torch.argmax(out, 1)
     return pred.item()
 
@@ -524,22 +524,30 @@ def afterFind(img,section,maxHeight):
 # img = cv2.imread("src/python/darkLandscapeScan.jpg")
 def fullProcess(img):
 
+    debugImg = []
+
     img = resizeImage(img)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     img, c = findCorners(img)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     img, corners = straightenImage(img, c)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     img, maxHeight = centerImage(img, corners)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     img, cnts = findContours(img)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     img, section = findSections(img, cnts)
+    debugImg.append(img)
     # plt.imshow(img)
     # plt.show()
     print(section)
@@ -557,7 +565,7 @@ def fullProcess(img):
             arr = findNumbers(group,sectionImg)
             if arr == None:
                 continue
-            print(f"group {k} arr size {len(arr)}")
+            # print(f"group {k} arr size {len(arr)}")
             item = []
             for digit in arr:
                 val = makePrediction(digit,model)
@@ -568,11 +576,11 @@ def fullProcess(img):
                 groupArr.append({"value":item[0]+(item[1]/10)})
             else:
                 groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
-            print(groupArr)
+            # print(groupArr)
         riderArr.append(groupArr)
         
     
-    return riderArr
+    return riderArr, debugImg
         
 
 
