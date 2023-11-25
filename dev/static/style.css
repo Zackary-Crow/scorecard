@@ -339,7 +339,7 @@ h3 {
 }
 
 form p {
-  display: block;
+  display: inline-block;
 }
 
 
@@ -357,17 +357,21 @@ p {
   margin: 0px
 }
 
+.fileList{
+  display:inline-block
+}
+
 #error {
   background-color: yellow;
 }
 
+.previewImg{
+  display:inline-block;
+}
 .previewImg img { 
   display: none; 
 }
-.previewImg p:hover + img {
-  display: block; 
-}
-.previewImg img:hover {
+.previewImg:hover img {
   display: block; 
 }
 
