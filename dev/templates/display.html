@@ -3,6 +3,23 @@
   id="main"
   x-data="{debugList: {{debug}}, scorecards: {{scorecards}}, selected: 0}"
 >
+
+  <div class="modal fade" id="uploadData" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="modalForm" enctype="multipart/form-data">
+            <input type="file" accept="image/*" id="tempUpload">
+          </form>
+          <button type="button" 
+            @click="scorecards[$el.id] = await newData()">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <br />
   <div class="miniheader">
     Please assess and correct any incorrect values below.
@@ -18,6 +35,16 @@
             :id="scorecards[i].status == 'error' ? 'error' : 'no'"
             @click="selected = i; console.log(scorecards[i])"
           ></a>
+          <button
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#uploadData"
+            data-bs-val="i"
+            @click="$('#modalForm ~ button').attr('id',i)"
+          >
+            <i class="fa-solid fa-upload"></i>
+          </button>
+
         </li>
       </template>
     </ul>
@@ -195,21 +222,6 @@
       window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight.value}))
     }
 
-    {% comment %} document.addEventListener('addedField',(e)=>{
-      form = e.srcElement.closest('form')
-      form.querySelectorAll("input").forEach(el=>{
-        el.removeEventListener('input',rideTimeHandler)
-        el.removeEventListener('input',rideWeightHandler)
-      })
-      rideTime = form.querySelector("[id='Ride Time'] > input")
-      rideWeight = form.querySelector("#Weight > input")
-      console.log(form)
-      console.log(rideTime)
-      console.log(rideWeight)
-      rideTime.addEventListener('input' , rideTimeHandler)
-      rideWeight.addEventListener('input', rideWeightHandler)
-    }) {% endcomment %}
-
     var rideWinner = Number.MAX_SAFE_INTEGER
     document.querySelectorAll("[id='Ride Time'] > input").forEach(el=>{
         if(el.value == '')
@@ -230,6 +242,21 @@
         el.addEventListener('input', rideWeightHandler)
     }
     )
+
+    async function newData(){
+
+    temp = new FormData(document.querySelector('#modalForm'));
+    temp.set('files',document.querySelector('#tempUpload').files[0])
+    var response = await fetch('{% url 'replaceCard' %}',{
+      method: 'POST',
+      headers : {
+        'X-CSRFToken': '{{csrf_token}}',
+      },
+      mode: 'cors',
+      body: temp
+    })
+    return response.json()
+  }
     {% comment %} [...document.querySelectorAll("[id='Ride Time'] > input")].forEach(el=>
         el.addEventListener('input', () => {
             var min = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))

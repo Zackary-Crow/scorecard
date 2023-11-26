@@ -7,7 +7,8 @@ from backend import consumers
 
 urlpatterns = [
     path("",views.HomeView.as_view()),
-    path("endpoint",views.api, name = "api")
+    path("endpoint",views.api, name = "api"),
+    path("changeForm",views.replaceCard, name = "replaceCard")
 ]
 
 websocket_urlpatterns = [

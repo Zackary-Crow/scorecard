@@ -314,6 +314,17 @@ h3 {
 }
 
 
+.htmx-indicator{
+  opacity:0;
+  transition: opacity 500ms ease-in;
+}
+.htmx-request .htmx-indicator{
+  opacity:1
+}
+.htmx-request.htmx-indicator{
+  opacity:1
+}
+
 
 .tab-content {
   display: block;
@@ -358,7 +369,7 @@ p {
 }
 
 .fileList{
-  display:inline-block
+  display: inline
 }
 
 #error {
@@ -366,7 +377,7 @@ p {
 }
 
 .previewImg{
-  display:inline-block;
+  display: block;
 }
 .previewImg img { 
   display: none; 
