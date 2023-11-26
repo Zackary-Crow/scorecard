@@ -458,6 +458,11 @@ p {
   text-wrap: nowrap;
 }
 
+.popover{
+  max-width: 25vw;
+  max-height: 25vh;
+}
+
 @media (max-width: 1688px) {
   body::before {
     opacity: 0.5;

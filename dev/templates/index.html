@@ -68,11 +68,10 @@
     <label for="files"></label>
     <div class="fileList">
         <template x-for="(f,i) in fileList">
-                <div class = "previewImg">
-                  <p x-text ="f.name"></p>
+                <div class = "previewImg" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true" :data-bs-content-value=URL.createObjectURL(f)>
+                  <p id="samplePrint" x-text ="f.name"></p>
                   <label for ="blueink">Blue Ink</label>
                   <input type = "checkbox" id="blueink" :name="'blueink' + i"/>
-                  <img :src="URL.createObjectURL(f)" width="50%" height="50%"/>
                 </div>
         </template>
     </div>
@@ -110,5 +109,22 @@
     {% comment %} <div>{% include 'partials/form.html'%}</div> {% endcomment %}
   </div>
 </div>
+
+<script defer>
+    document.querySelector('#files').addEventListener('change',()=>{
+      
+    setTimeout(function() {
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+      console.log(popoverTriggerList)
+      const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl,
+      {
+        html: true,
+        content: function(){return '<img src ="'+popoverTriggerEl.getAttribute('data-bs-content-value')+'" width="100%" height="100%" />'}
+      }))
+   
+    }, 100);
+    
+  })
+</script>
 
 {% endblock %}
