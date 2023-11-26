@@ -412,15 +412,9 @@ form p {
   background-color: yellow;
 }
 
-.previewImg{
-  display:inline-block;
-}
-.previewImg img { 
-  display: none; 
-}
-.previewImg:hover img {
-  display: block; 
-}
+.previewImg img { display: none; }
+.previewImg p:hover ~ img { display: block; }
+.previewImg img:hover { display: block; }
 
 li {
   display: flex;
