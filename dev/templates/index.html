@@ -63,6 +63,7 @@
     hx-encoding="multipart/form-data"
     hx-post="{% url 'api' %}"
     hx-swap="false"
+    hx-indicator="#spinner"
 >
     <label for="files"></label>
     <div class="fileList">
@@ -99,6 +100,10 @@
 
     <label for ="debug">Debug Mode</label>
     <input type ="checkbox" id="debug" name="debug" />
+
+    <div class="spinner-border htmx-indicator" id="spinner" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
 
 </form>
     <!-- TODO: Convert to Django -->

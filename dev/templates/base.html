@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <script src="{% static 'htmx.min.js' %}"></script>
@@ -66,7 +65,7 @@
         <a class="link" href="https://www.distanceriding.org/">About Us</a>
       </div>
     </header>
-    <div id = "main" hx-swap-oob="true">
+    <div id = "main" hx-swap-oob="outerHTML">
       {% block content %}
       {% endblock %}
     </div>
