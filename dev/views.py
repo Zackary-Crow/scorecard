@@ -21,7 +21,8 @@ class HomeView(TemplateView):
 async def replaceCard(request):
     if(request.method == 'POST'):
         # form = PhotoForm(request.POST or None, request.FILES or None)
-        print(request.__dict__)
+        # print(request.__dict__)
+        print('replaceCard')
         debugList = []
         inputBox = list(request.POST.dict())
         print(inputBox)
@@ -49,7 +50,8 @@ async def replaceCard(request):
                 return http.HttpResponse(json.dumps({'status':'ok','valueList':results}))
             except Exception as e:
                 print(e)
-                return http.HttpResponse(json.dumps({'status':'error','valueList':{}}))
+                empty = []
+                return http.HttpResponse(json.dumps({'status':'error','valueList':ocr.fillArr(empty)}))
                 # return render(request, 'partials/toast.html', {'message':"There has been an error with your form"})
         # if form.is_valid():
         #     form.save()
@@ -84,8 +86,9 @@ def api(request):
                     raise Exception()
                 scorecards.append({'status':'ok','valueList':results})
             except Exception as e:
+                empty = []
                 print(e)
-                scorecards.append({'status':'error','valueList':{}})
+                scorecards.append({'status':'error','valueList':ocr.fillArr(empty)})
                 # return render(request, 'partials/toast.html', {'message':"There has been an error with your form"})
         # if form.is_valid():
         #     form.save()

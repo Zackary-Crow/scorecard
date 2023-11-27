@@ -231,7 +231,7 @@ img:target, #overlay + img:target{
   flex-wrap: wrap;
 }
 
-#uploadButton, #photoButton {
+#uploadButton, #photoButton,.replaceButton {
   position: relative;
   display: inline-flex;
   height: 54px;
@@ -321,11 +321,6 @@ h3 {
   border-top: none;
 }
 
-#form-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
 #form {
   padding-left: 25px;
@@ -356,6 +351,10 @@ h3 {
   border-bottom: 2px solid #000;
 }
 
+#uploadspinner{
+  display: none;
+}
+
 
 .htmx-indicator{
   opacity:0;
@@ -379,7 +378,7 @@ h3 {
   border-top: none;
 }
 
-#form-container {
+.form-container {
   display: flex;
   justify-content: space-between;
   padding: 5px;
@@ -392,41 +391,9 @@ h3 {
   border-left: 1px solid #000;
 }
 
-/* causing issue on display page
-form p {
-  display: inline-block;
-}
-
-.fileList{
-  display: inline
-}
-
-#error {
+.error {
   background-color: yellow;
 }
-
-.previewImg{
-  display: block;
-}
-.previewImg img { 
-  display: none; 
-}
-.previewImg:hover img {
-  display: block; 
-}
-
-li {
-  display: flex;
-  align-items: left;
-  margin-bottom: 10px;
-  font-size: 15px;
-}
-
-p {
-  font-weight: bold;
-  font-size: 20px;
-  display: inline-block;
-}*/
 
 .fileList{
   display:inline-block
@@ -451,6 +418,15 @@ li {
 p {
   font-weight: bold;
   font-size: 20px;
+  margin: 0px;
+}
+
+.winner {
+  background-color: greenyellow;
+}
+
+.rowEntry {
+  display:flex
 }
 
 #ex {
@@ -566,20 +542,5 @@ p {
 
   #uploadButton {
     margin-top: 2vh;
-  }
-}
-
-@media (max-width: 800px) {
-  #uploadButton, #photoButton {
-    font-size: 3vw;
-    width: 25vw;
-    height: 5vh;
-  }
-}
-@media (max-width: 800px) {
-  #uploadButton, #photoButton {
-    font-size: 3vw;
-    width: 25vw;
-    height: 5vh;
   }
 }

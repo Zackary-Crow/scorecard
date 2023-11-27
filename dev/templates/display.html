@@ -12,7 +12,11 @@
             <input type="file" accept="image/*" id="tempUpload">
           </form>
           <button type="button" 
-            @click="scorecards[$el.id] = await newData()">
+            class="replaceButton"
+            @click="scorecards[$el.id] = await newData($el.id);"
+            data-bs-dismiss="modal">
+            Upload
+        </button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -28,11 +32,11 @@
   <div class="tab-container">
     <ul class="nav nav-tabs tab">
       <template x-for="(s,i) in scorecards">
-        <li class="nav-item">
+        <li class="nav-item" :id="'navcard'+i">
           <a
             class="nav-link"
             x-text="'Scorecard '+ (i+1)"
-            :id="scorecards[i].status == 'error' ? 'error' : 'no'"
+            :id="scorecards[i].status == 'error' ? 'error' : 'good'"
             @click="selected = i; console.log(scorecards[i])"
           ></a>
           <button
@@ -40,10 +44,13 @@
             data-bs-toggle="modal"
             data-bs-target="#uploadData"
             data-bs-val="i"
-            @click="$('#modalForm ~ button').attr('id',i)"
+            @click="document.querySelector('#modalForm ~ button').setAttribute('id',i)"
           >
             <i class="fa-solid fa-upload"></i>
           </button>
+          <div class="spinner-border" id="uploadspinner" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
 
         </li>
       </template>
@@ -52,22 +59,22 @@
   <div class="tab-container" style="padding-bottom: 100px">
     <div id="card" class="tab-content">
       <template x-for="(card,i) in scorecards">
-        <div id="form-container" x-show="i == selected">
+        <div class="form-container" :id="'formCard'+i" :data-index=i x-show="i == selected">
           <template
-            x-effect="console.log(card)"
             x-for="(rider,index) in card.valueList"
           >
-            <form>
+            <form x-data={'secAScore':0,'secBScore':0,'secCScore':0,'totScore':0}>
               <p>Rider <span x-text="index+1"></span></p>
               <div class="SectionA">
                 <div id="Recovery">
                   <p>Recovery</p>
-                  <input type="number" step="0.1" x-model="rider[0].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[0].value" :class="rider[0].value == '' ? 'error' : 'good'"/>
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(0,1)"
+                    @click="rider.splice(0,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -76,14 +83,16 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <div id="Hydration">
                   <p>Hydration</p>
-                  <input type="number" step="0.1" x-model="rider[1].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[1].value" :class="rider[1].value == '' ? 'error' : 'good'"/>
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(1,1)"
+                    @click="rider.splice(1,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -92,14 +101,16 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <div id="Lesions">
                   <p>Lesions</p>
-                  <input type="number" step="0.1" x-model="rider[2].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[2].value" :class="rider[2].value == '' ? 'error' : 'good'"/>
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(2,1)"
+                    @click="rider.splice(2,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -108,14 +119,16 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <div id="Soundness">
                   <p>Soundness</p>
-                  <input type="number" step="0.1" x-model="rider[3].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[3].value" :class="rider[3].value == '' ? 'error' : 'good'" />
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(3,1)"
+                    @click="rider.splice(3,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -124,14 +137,16 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <div id="Qual Movement">
                   <p>Qual Movement</p>
-                  <input type="number" step="0.1" x-model="rider[4].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[4].value" :class="rider[4].value == '' ? 'error' : 'good'"/>
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(4,1)"
+                    @click="rider.splice(4,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -140,22 +155,26 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <p>Veterinary Score</p>
                 <input
+                  disabled
                   type="number"
-                  :value="(getValue(rider.slice(0,5)) * 10).toFixed()"
+                  :temp="secAScore = (getValue(rider.slice(0,5)) * 10).toFixed();"
+                  x-model="secAScore"
                 />
               </div>
 
               <div class="SectionB">
                 <div id="Ride Time">
                   <p>Ride Time</p>
-                  <input type="number" step="0.1" x-model="rider[5].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[5].value" :class="rider[5].value == '' ? 'error' : 'good'" />
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(5,1)"
+                    @click="rider.splice(5,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -164,21 +183,32 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <p>Ride Difference</p>
                 <input
+                  disabled
                   type="number"
-                  @winnertime.window="$el.value = (rider[5].value - event.detail).toFixed();"
+                  id="rideDiffer"
+                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = 200 - $el.value"
                 />
+                <p>Total Time Score</p>
+                <input
+                disabled
+                type ="number"
+                id="secScore"
+                x-model="secBScore"
+                >
               </div>
               <div class="SectionC">
                 <div id="Weight">
                   <p>Weight</p>
-                  <input type="number" step="0.1" x-model="rider[6].value" />
+                  <div class ="rowEntry">
+                  <input type="number" step="0.1" id="riderEntry" x-model="rider[6].value" :class="rider[6].value == '' ? 'error' : 'good'" />
                   <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    @click="rider.splice(6,1)"
+                    @click="rider.splice(6,1); rider.push({value:''})"
                   ></button>
                   <button
                     type="button"
@@ -187,12 +217,30 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
+                </div>
                 <p>Weight Difference</p>
                 <input
+                  disabled
                   type="number"
-                  @winnerweight.window="$el.value = (rider[6].value - event.detail).toFixed();"
+                  id="weightDiffer"
+                  @winnerweight.window="$el.value = Math.abs((rider[6].value - event.detail).toFixed()); secCScore = 100- $el.value/2;"
                 />
+                <p>Total Weight Score</p>
+                <input
+                disabled
+                type ="number"
+                id="secScore"
+                x-model="secCScore"
+                >
               </div>
+                <p>Total Score</p>
+                <input
+                disabled 
+                type="number"
+                id="totScore"
+                :value="totScore = Number(secAScore) + Number(secBScore) + Number(secCScore)"
+                x-init="$watch('totScore', value => window.dispatchEvent(new CustomEvent('totUpdate',{detail:{val:value,src:$el}})))"
+                >
             </form>
           </template>
         </div>
@@ -214,49 +262,83 @@
   <script>
 
     const rideTimeHandler = () => {
-      rideWinner.value = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))
-      window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner.value}))
+      rideWinner = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > div > input")].map(a=>a.value))
+      window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner}))
     }
     const rideWeightHandler = () => {
-      rideWeight.value = Math.max(...[...document.querySelectorAll("[id='Weight'] > input")].map(a=>a.value))
-      window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight.value}))
+      rideWeight = Math.max(...[...document.querySelectorAll("[id='Weight'] > div >input")].map(a=>a.value))
+      window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight}))
+      console.log(rideWeight)
     }
 
     var rideWinner = Number.MAX_SAFE_INTEGER
-    document.querySelectorAll("[id='Ride Time'] > input").forEach(el=>{
+    document.querySelectorAll("[id='Ride Time'] > div > input").forEach(el=>{
+        el.addEventListener('input', rideTimeHandler)
         if(el.value == '')
           return
         if(Number(el.value) < Number(rideWinner)){
             rideWinner = el.value
             window.dispatchEvent(new CustomEvent("winnertime",{detail:rideWinner}))
         }
-        el.addEventListener('input', rideTimeHandler)
+        
     }
     )
     var rideWeight = 0
-    document.querySelectorAll("[id='Weight'] > input").forEach(el=>{
+    document.querySelectorAll("[id='Weight'] > div > input").forEach(el=>{
+        el.addEventListener('input', rideWeightHandler)
+        if(el.value == '')
+          return
         if(Number(el.value) > Number(rideWeight)){
             rideWeight = el.value
             window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight}))
         }
-        el.addEventListener('input', rideWeightHandler)
     }
     )
 
-    async function newData(){
+    async function newData(id){
+      const spinner = document.querySelector('#navcard'+id+' > #uploadspinner')
+      spinner.style['display']='block'
+      temp = new FormData(document.querySelector('#modalForm'));
+      temp.set('files',document.querySelector('#tempUpload').files[0])
+      var response = await fetch('{% url 'replaceCard' %}',{
+        method: 'POST',
+        headers : {
+          'X-CSRFToken': '{{csrf_token}}',
+        },
+        mode: 'cors',
+        body: temp
+      })
+      spinner.style['display']='none'
+      return response.json()
+    }
 
-    temp = new FormData(document.querySelector('#modalForm'));
-    temp.set('files',document.querySelector('#tempUpload').files[0])
-    var response = await fetch('{% url 'replaceCard' %}',{
-      method: 'POST',
-      headers : {
-        'X-CSRFToken': '{{csrf_token}}',
-      },
-      mode: 'cors',
-      body: temp
+    document.querySelectorAll('.form-container').forEach(cardEl => {
+      cardEl.querySelectorAll('#riderEntry').forEach(inputEl => {
+        if(inputEl.classList.contains('error')){
+          console.log(inputEl)
+          console.log(cardEl.getAttribute('data-index'))
+          document.querySelector('#navcard'+cardEl.getAttribute('data-index')).classList.add('error')
+        }
+      })
     })
-    return response.json()
-  }
+
+    var biggestScore = 0;
+    var lastWinner;
+    window.addEventListener('totUpdate',(e)=>{
+      document.querySelectorAll('#totScore').forEach(el => {
+        if(lastWinner == null)
+          lastWinner = el
+        const tempNum = el.value
+        if(Number(tempNum) >= Number(lastWinner.value)){
+          lastWinner.closest('form').classList.remove('winner')
+          lastWinner = el
+          el.closest('form').classList.add('winner')
+          biggestScore = tempNum
+        }
+      })
+      
+    })
+
     {% comment %} [...document.querySelectorAll("[id='Ride Time'] > input")].forEach(el=>
         el.addEventListener('input', () => {
             var min = Math.min(...[...document.querySelectorAll("[id='Ride Time'] > input")].map(a=>a.value))

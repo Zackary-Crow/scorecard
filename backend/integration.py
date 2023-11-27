@@ -527,6 +527,8 @@ def afterFind(img,section,maxHeight):
 def fullProcess(img,blueink=False):
 
     debugImg = []
+    riderArr = []
+    predictions = []
     try:
         img = resizeImage(img)
         # debugImg.append(img)
@@ -554,8 +556,7 @@ def fullProcess(img,blueink=False):
         # plt.show()
         # plt.imshow(img)
         # plt.show()
-        predictions = []
-        riderArr = []
+        
         for i,j in enumerate(section[:-1]):
             # print(f"section {i}")
             groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
@@ -568,7 +569,6 @@ def fullProcess(img,blueink=False):
                 arr,fullDebug = findNumbers(group,sectionImg)
                 if arr == None:
                     continue
-                print(f"arr type {type(arr)} debug type {type(fullDebug)}")
                 item = []
                 for digit, fullDigit in zip(arr,fullDebug):
                     debugImg.append(fullDigit)
@@ -582,13 +582,28 @@ def fullProcess(img,blueink=False):
                     groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
                 # print(groupArr)
             riderArr.append(groupArr)
-            
         
+        riderArr = fillArr(riderArr.copy())
+        print(riderArr)
         return riderArr, debugImg
     except:
-        return None, debugImg
+        riderArr = fillArr(riderArr.copy())
+        return riderArr, debugImg
             
+def fillArr(temp): 
+    for group in temp:
+        if(len(group) >= 7):
+            break
+        while(len(group) < 7):
+            group.append({"value":''})
 
+    while(len(temp) < 5):
+        gTemp = []
+        for i in range(7):
+            gTemp.append({"value":''})
+        temp.append(gTemp)
+
+    return temp
 
     ###########################################
 
