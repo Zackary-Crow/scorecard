@@ -231,6 +231,14 @@ img:target, #overlay + img:target{
   flex-wrap: wrap;
 }
 
+.badPredict {
+  background-color: lightcoral;
+}
+
+.nav-error #erroricon {
+  display: block
+}
+
 #uploadButton, #photoButton,.replaceButton {
   position: relative;
   display: inline-flex;
@@ -422,7 +430,8 @@ p {
 }
 
 .winner {
-  background-color: greenyellow;
+  background-color: rgba(85, 255, 190, 0.53)
+
 }
 
 .rowEntry {

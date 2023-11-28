@@ -33,7 +33,7 @@ async def replaceCard(request):
             # temp.append(file)
             img = np.array(Image.open(file).convert('RGB'))
             try:
-                if ("blueink" + str(i)) in inputBox:
+                if ("blueink") in inputBox:
                     results, debug = ocr.fullProcess(img, blueink=True)
                 else:    
                     results, debug = ocr.fullProcess(img)
@@ -59,7 +59,7 @@ async def replaceCard(request):
         
 
 
-def api(request):
+async def api(request):
     if(request.method == 'POST'):
         # form = PhotoForm(request.POST or None, request.FILES or None)
         debugList = []
