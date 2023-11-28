@@ -261,6 +261,10 @@ img:target, #overlay + img:target{
   background-color: lightcoral;
 }
 
+#erroricon{
+  display: none
+}
+
 .nav-error #erroricon {
   display: block
 }
@@ -430,7 +434,7 @@ h3 {
   flex-wrap: wrap;
 }
 
-#error {
+.error {
   background-color: yellow;
 }
 
@@ -442,10 +446,6 @@ h3 {
     text-align: center;
     text-wrap: nowrap;
 }
-
-.previewImg img { display: none; }
-.previewImg p:hover ~ img { display: block; }
-.previewImg img:hover { display: block; }
 
 li {
   display: flex;

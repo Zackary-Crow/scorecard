@@ -58,8 +58,8 @@
           </button>
           <button
           type ="button"
-          disabled>
-          <i class="fa-solid fa-exclamation"></i>
+          id="erroricon">
+          <i class="fa-solid fa-exclamation fa-lg"></i>
         </button>
           <div class="spinner-border" id="uploadspinner" role="status">
             <span class="sr-only">Loading...</span>
@@ -78,7 +78,17 @@
             x-for="(rider,index) in card.valueList"
           >
             <form x-data={'secAScore':0,'secBScore':0,'secCScore':0,'totScore':0}>
+              <div style="display: flex;
+                          align-items: center;
+                          gap: 10px">
               <p>Rider <span x-text="index+1"></span></p>
+              <button
+                    type="button"
+                    class="btn-close"
+                    aria-label="Close"
+                    @click="card.valueList.splice(index,1);"
+              ></button>
+              </div>
               <div class="SectionA">
                 <div id="Recovery">
                   <p>Recovery</p>
@@ -203,7 +213,7 @@
                   disabled
                   type="number"
                   id="rideDiffer"
-                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = 200 - $el.value"
+                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = Math.max(200 - $el.value)"
                 />
                 <p>Total Time Score</p>
                 <input
@@ -237,7 +247,7 @@
                   disabled
                   type="number"
                   id="weightDiffer"
-                  @winnerweight.window="$el.value = Math.abs((rider[6].value - event.detail).toFixed()); secCScore = 100- $el.value/2;"
+                  @winnerweight.window="$el.value = Math.abs((rider[6].value - event.detail).toFixed()); secCScore = Math.max(100- $el.value/2, 0);"
                 />
                 <p>Total Weight Score</p>
                 <input
