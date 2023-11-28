@@ -1,73 +1,138 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
 
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+<div
+  id="modals-here"
+  class="modal modal-blur fade"
+  style="display: none"
+  aria-hidden="false"
+  tabindex="-1"
+  hx-swap-oob="innerHTML"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div
+  id="toast"
+  class="toast"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+ 
+>
+  <div class="toast-body"></div>
+</div>
+<br />
+<div class="miniheader">Have an AERC Scorecard to upload?</div>
+<br />
+<div class="miniheader">Upload or snap a photo of it below!</div>
+<br /><br />
 
-<div id="modals-here"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1"
-    hx-swap-oob="innerHTML"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-          <div class="modal-content"></div>
-      </div>
-    </div>
-    <br />
-    <div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
-    <br />
-    <div class="miniheader">Upload or snap a photo of it below!</div>
-    <br /><br />
-
-    <div style="margin: auto; width: 50%; text-align: center">
-      <a
-        href="#aercImage"
-        onclick="document.querySelector('.overlay').showModal()"
-        >American Endurance Ride Conference Evaluation Example</a
-      >
-    </div>
-    <dialog class="overlay" onclick="this.close()">
-      <img
-        id="aercImage"
-        class="popupImg"
-        src="{% static 'images/AERCcard.png' %}"
-      />
-    </dialog>
-    <br />
-    <div class="filebox-container">
-      <div class="filebox">
-        <div
-          id="drop-zone"
-          class="dottedfill"
-          hx-trigger="drop"
-          hx-post="/upload"
-          ondrop="event.preventDefault();
+<div style="margin: auto; width: 50%; text-align: center">
+  <a href="#aercImage" style="color: var(--text-color)" onclick="document.querySelector('.overlay').showModal()"
+    >American Endurance Ride Conference Evaluation Example</a
+  >
+</div>
+<dialog class="overlay" onclick="this.close()">
+  <img
+    id="aercImage"
+    class="popupImg"
+    src="{% static 'images/AERCcard.png' %}"
+  />
+</dialog>
+<br />
+<div class="filebox-container">
+  <div class="filebox">
+    <div
+      id="drop-zone"
+      class="dottedfill"
+      ondragover="event.preventDefault()"
+      ondrop="
+          event.preventDefault();
           const files = document.querySelector('#files');
-          files.files = event.dataTransfer.files; 
-          console.log(files);
-          const ul = document.querySelector('.fileList'); 
-          ul.innerHTML ='';
-          for(const f of event.dataTransfer.files){ul.innerHTML += '<li>'+f.name+'</li>';};"
-          ondragover="event.preventDefault()"
-        >
-          <a class="filedrop">Drag Your Files Here!</a>
-        </div>
-        <a class="or">Or</a>
-        <ul id="file-list"></ul>
-        <!-- TODO: Convert to Django -->
-        <div>
-        {% include 'partials/form.html'%}
-        </div>
-        <button id="photoButton" 
-                type="button"
-                onclick="event.preventDefault()"
-                hx-get="{% url 'api' %}"
-                hx-target="#modals-here"
-                data-bs-toggle="modal" 
-                data-bs-target="#modals-here"
-                > Take a Photo</button>
-      </div>
+          files.files = event.dataTransfer.files;
+          files.dispatchEvent(new CustomEvent('change'))
+          "
+    >
+      <a class="filedrop">Drag Your Files Here!</a>
     </div>
+    <a class="or">Or</a>
+    <form
+    x-data="{fileList:document.querySelector('#files').files}"
+    id="file-upload"
+    style="display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;"
+    hx-encoding="multipart/form-data"
+    hx-post="{% url 'api' %}"
+    hx-swap="false"
+    hx-indicator="#spinner"
+>
+    <label for="files"></label>
+    <p style="text-decoration-line: underline;">Hover to Preview</p>
+    <div class="fileList">
+        <template x-for="(f,i) in fileList">
+                <div class = "previewImg" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true" :data-bs-content-value=URL.createObjectURL(f)>
+                  <p id="samplePrint">
+                    <span x-text="f.name"></span>
+                  </p>
+                  <label for ="blueink">Blue Ink</label>
+                  <input type = "checkbox" id="blueink" :name="'blueink' + i"/>
+                </div>
+        </template>
+    </div>
+    <br />
+    <button
+    type="button"
+    id="uploadButton"
+    onclick="document.querySelector('#files').click()"
+    >
+    Take Photo / Upload Files
+    </button>
+
+    {% comment %} {{form.data}} {% endcomment %}
+    <input
+        id="files"
+        @change="fileList = $el.files; console.log('change has happened')"
+        type="file"
+        accept="image/*"
+        multiple
+        name="files"
+        style="display: none; margin: auto"
+    />
+    </button>
+    <button id="uploadButton">Submit</button>
+
+    <label for ="debug">Debug Mode</label>
+    <input type ="checkbox" id="debug" name="debug" />
+
+    <div class="spinner-border htmx-indicator" id="spinner" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+
+</form>
+    <!-- TODO: Convert to Django -->
+    {% comment %} <div>{% include 'partials/form.html'%}</div> {% endcomment %}
+  </div>
+</div>
+<div class="footer"></div>
+
+<script defer>
+    document.querySelector('#files').addEventListener('change',()=>{
+      
+    setTimeout(function() {
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+      console.log(popoverTriggerList)
+      const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl,
+      {
+        html: true,
+        content: function(){return '<img src ="'+popoverTriggerEl.getAttribute('data-bs-content-value')+'" width="100%" height="100%" />'}
+      }))
+   
+    }, 100);
+    
+  })
+</script>
 
 {% endblock %}
