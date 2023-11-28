@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <script src="{% static 'htmx.min.js' %}"></script>
@@ -45,28 +44,25 @@
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <header class="banner">
       <div class="logoNtitle">
-        <img class="img1" src="{% static 'images/SEDRA.png' %}" />
+        <img class="img1" src="{% static 'images/SEDRA.png' %}" onclick="refreshPage()" />
         <p>Scorecard<br />Scanner</p>
+        <div class="button-container">
+          <button
+            onclick=" let t = body.classList.toggle('dark-mode');
+                      if(t) this.textContent='Light Mode'; 
+                      else this.textContent='Dark Mode'"
+            id="light-dark"
+          >
+            Dark Mode
+          </button>
+        </div>
       </div>
       <div class="link-container">
         <a class="link" href="https://www.distanceriding.org/">Home</a>
-        <a class="link" href="https://www.distanceriding.org/">How It Works</a>
-        <a class="link" href="https://www.distanceriding.org/">About Us</a>
-      </div>
-      <div class="button-container">
-        <button
-          onclick=" let t = body.classList.toggle('dark-mode');
-                    if(t) this.textContent='Light Mode'; 
-                    else this.textContent='Dark Mode'"
-          id="light-dark"
-          style="border-radius: 10px"
-          ;
-        >
-          Dark Mode
-        </button>
+        <a class="link" href="#aercImage" onclick="document.querySelector('.overlay').showModal()">How It Works</a>
       </div>
     </header>
-    <div id = "main" hx-swap-oob="true">
+    <div id = "main" hx-swap-oob="outerHTML">
       {% block content %}
       {% endblock %}
     </div>
@@ -87,6 +83,9 @@
     function getValue(cards) {
       const sum = cards.reduce((a, b) => a + Number(b.value), 0);
       return sum;
+    }
+    function refreshPage() {
+        location.reload();
     }
   </script>  
 </html>
