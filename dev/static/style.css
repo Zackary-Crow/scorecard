@@ -139,6 +139,13 @@ body::before {
 .overlay{
   max-width: 80vw;
   max-height: 80vh;
+  background-color: #393939;
+}
+
+.overlayInstructions{
+  max-width: 80vw;
+  max-height: 80vh;
+  background-color: #393939;
 }
 
 .popupImg
@@ -151,7 +158,24 @@ body::before {
   border:5px solid #cccccc;
   border-radius:10px;
 }
+
 .popupImg:target{
+  display:block;
+  opacity:2;
+}
+
+.popupInstructions
+{
+  height: 100%;
+  width: 100%;
+  margin:0 auto;
+  position:relative;
+  display:none;
+  border:5px solid #cccccc;
+  border-radius:10px;
+}
+
+.popupInstructions:target{
   display:block;
   opacity:2;
 }
