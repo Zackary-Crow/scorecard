@@ -23,7 +23,7 @@
   <div class="toast-body"></div>
 </div>
 <br />
-<div class="miniheader">Have a SEDRA or AERC Scorecard to upload?</div>
+<div class="miniheader">Have an AERC Scorecard to upload?</div>
 <br />
 <div class="miniheader">Upload or snap a photo of it below!</div>
 <br /><br />
@@ -60,22 +60,29 @@
     <form
     x-data="{fileList:document.querySelector('#files').files}"
     id="file-upload"
+    style="display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;"
     hx-encoding="multipart/form-data"
     hx-post="{% url 'api' %}"
     hx-swap="false"
     hx-indicator="#spinner"
 >
     <label for="files"></label>
+    <p style="text-decoration-line: underline;">Hover to Preview</p>
     <div class="fileList">
         <template x-for="(f,i) in fileList">
                 <div class = "previewImg" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true" :data-bs-content-value=URL.createObjectURL(f)>
-                  <p id="samplePrint" x-text ="f.name"></p>
+                  <p id="samplePrint">
+                    <span x-text="f.name"></span>
+                  </p>
                   <label for ="blueink">Blue Ink</label>
                   <input type = "checkbox" id="blueink" :name="'blueink' + i"/>
                 </div>
         </template>
     </div>
-    <p>Hover to Preview</p>
+    <br />
     <button
     type="button"
     id="uploadButton"
@@ -109,6 +116,7 @@
     {% comment %} <div>{% include 'partials/form.html'%}</div> {% endcomment %}
   </div>
 </div>
+<div class="footer"></div>
 
 <script defer>
     document.querySelector('#files').addEventListener('change',()=>{

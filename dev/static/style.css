@@ -139,6 +139,13 @@ body::before {
 .overlay{
   max-width: 80vw;
   max-height: 80vh;
+  background-color: #393939;
+}
+
+.overlayInstructions{
+  max-width: 80vw;
+  max-height: 80vh;
+  background-color: #393939;
 }
 
 .popupImg
@@ -151,7 +158,24 @@ body::before {
   border:5px solid #cccccc;
   border-radius:10px;
 }
+
 .popupImg:target{
+  display:block;
+  opacity:2;
+}
+
+.popupInstructions
+{
+  height: 100%;
+  width: 100%;
+  margin:0 auto;
+  position:relative;
+  display:none;
+  border:5px solid #cccccc;
+  border-radius:10px;
+}
+
+.popupInstructions:target{
   display:block;
   opacity:2;
 }
@@ -169,6 +193,7 @@ img:target, #overlay + img:target{
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 5vh;
 }
 
 .filebox {
@@ -181,12 +206,13 @@ img:target, #overlay + img:target{
   align-items: center;
   flex-direction: column;
   padding: 30px;
+  padding-bottom: 0px;
 }
 
 .dottedfill {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 25vh;
   background-color: var(--file-color);
   border: 2px dashed #0F6FFF;
   display: flex;
@@ -230,6 +256,19 @@ img:target, #overlay + img:target{
   justify-content: center;
   flex-wrap: wrap;
 }
+
+.badPredict {
+  background-color: lightcoral;
+}
+
+#erroricon {
+  display: none;
+}
+
+.nav-error #erroricon {
+  display: block;
+}
+
 
 #uploadButton, #photoButton, .replaceButton {
   position: relative;
@@ -390,17 +429,23 @@ h3 {
   border-left: 1px solid #000;
 }
 
-.fileList{
-  display:inline-block
+.fileList {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .error {
   background-color: yellow;
 }
 
-.previewImg img { display: none; }
-.previewImg p:hover ~ img { display: block; }
-.previewImg img:hover { display: block; }
+.previewImg {
+    flex: 0 0 calc(33.33% - 10px);
+    margin: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    text-wrap: nowrap;
+}
 
 li {
   display: flex;
@@ -416,7 +461,7 @@ p {
 }
 
 .winner {
-  background-color: greenyellow;
+  background-color: rgba(77, 255, 37, 0.495);
 }
 
 .rowEntry {
@@ -463,9 +508,24 @@ p {
   body::before {
     background-image: unset;
   }
+
+  body {
+    background-image: url('../static/images/sedraname.png');
+    background-size: cover;
+    background-position: center bottom 3%;
+    background-repeat: no-repeat;
+    background-size: 75%;
+    margin-bottom: 100px;
+  }
+
+  .footer {
+    height: 100px;
+    background-color: transparent;
+  }
 }
 
 @media (max-width: 1000px) {
+
   .banner {
     width: 100vw;
   }
@@ -502,15 +562,20 @@ p {
     height: 50vh;
   }
 
-  .filebox {
-    width: 75%;
-    height: 50vh;
-    justify-content: flex-start;
-    align-items: center;
+  #ex {
+    font-size: max(18px, 2vw);
+    text-wrap: wrap;
   }
 
-  .dottedfill {
-    height: 50%;
+  .filebox-container {
+    height: 50vh;
+  }
+
+  .filebox {
+    width: 75%;
+    height: auto;
+    justify-content: flex-start;
+    align-items: center;
   }
 
   #uploadButton, #photoButton {

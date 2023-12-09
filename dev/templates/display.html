@@ -10,6 +10,8 @@
         <div class="modal-body">
           <form id="modalForm" enctype="multipart/form-data">
             <input type="file" accept="image/*" id="tempUpload">
+            <label for ="blueink">Blue Ink</label>
+            <input type = "checkbox" id="blueink"/>
           </form>
           <button type="button" 
             class="replaceButton"
@@ -33,11 +35,17 @@
     <ul class="nav nav-tabs tab">
       <template x-for="(s,i) in scorecards">
         <li class="nav-item" :id="'navcard'+i">
-          <a
-            class="nav-link"
+          <div style="display: flex;
+                      align-items: center; 
+                      background: lightgray; 
+                      margin:10px;
+                      ">
+          <button
+            type="button"
             x-text="'Scorecard '+ (i+1)"
             :id="scorecards[i].status == 'error' ? 'error' : 'good'"
-            @click="selected = i; console.log(scorecards[i])"
+            @click="selected = i;"
+            data-bs-toggle="tab"
           ></a>
           <button
             type="button"
@@ -48,9 +56,15 @@
           >
             <i class="fa-solid fa-upload"></i>
           </button>
+          <button
+          type ="button"
+          id="erroricon">
+          <i class="fa-solid fa-exclamation fa-lg"></i>
+        </button>
           <div class="spinner-border" id="uploadspinner" role="status">
             <span class="sr-only">Loading...</span>
           </div>
+        </div>
 
         </li>
       </template>
@@ -59,17 +73,27 @@
   <div class="tab-container" style="padding-bottom: 100px">
     <div id="card" class="tab-content">
       <template x-for="(card,i) in scorecards">
-        <div class="form-container" :id="'formCard'+i" :data-index=i x-show="i == selected">
+        <div class="form-container" :id="'formCard'+i" :data-index="i" x-show="i == selected">
           <template
             x-for="(rider,index) in card.valueList"
           >
             <form x-data={'secAScore':0,'secBScore':0,'secCScore':0,'totScore':0}>
+              <div style="display: flex;
+                          align-items: center;
+                          gap: 10px">
               <p>Rider <span x-text="index+1"></span></p>
+              <button
+                    type="button"
+                    class="btn-close"
+                    aria-label="Close"
+                    @click="card.valueList.splice(index,1);"
+              ></button>
+              </div>
               <div class="SectionA">
                 <div id="Recovery">
                   <p>Recovery</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[0].value" :class="rider[0].value == '' ? 'error' : 'good'"/>
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[0].confidence=100" :class="[rider[0].confidence > 60 ? '' : 'badPredict', rider[0].value == '' ? 'error' : 'good']" x-model="rider[0].value"/>
                   <button
                     type="button"
                     class="btn-close"
@@ -87,7 +111,7 @@
                 <div id="Hydration">
                   <p>Hydration</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[1].value" :class="rider[1].value == '' ? 'error' : 'good'"/>
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[1].confidence=100" :class="[rider[1].confidence > 60 ? '' : 'badPredict', rider[1].value == '' ? 'error' : 'good']" x-model="rider[1].value"/>
                   <button
                     type="button"
                     class="btn-close"
@@ -105,7 +129,7 @@
                 <div id="Lesions">
                   <p>Lesions</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[2].value" :class="rider[2].value == '' ? 'error' : 'good'"/>
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[2].confidence=100" :class="[rider[2].confidence > 60 ? '' : 'badPredict', rider[2].value == '' ? 'error' : 'good']" x-model="rider[2].value"/>
                   <button
                     type="button"
                     class="btn-close"
@@ -123,7 +147,7 @@
                 <div id="Soundness">
                   <p>Soundness</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[3].value" :class="rider[3].value == '' ? 'error' : 'good'" />
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[3].confidence=100" :class="[rider[3].confidence > 60 ? '' : 'badPredict', rider[3].value == '' ? 'error' : 'good']" x-model="rider[3].value" />
                   <button
                     type="button"
                     class="btn-close"
@@ -141,7 +165,7 @@
                 <div id="Qual Movement">
                   <p>Qual Movement</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[4].value" :class="rider[4].value == '' ? 'error' : 'good'"/>
+                  <input type="number" step="0.1" id="riderEntry" :class="[rider[4].confidence > 60 ? '' : 'badPredict', rider[4].value == '' ? 'error' : 'good']" x-model="rider[4].value" />
                   <button
                     type="button"
                     class="btn-close"
@@ -169,7 +193,7 @@
                 <div id="Ride Time">
                   <p>Ride Time</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[5].value" :class="rider[5].value == '' ? 'error' : 'good'" />
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[5].confidence=100" :class="[rider[5].confidence > 60 ? '' : 'badPredict', rider[5].value == '' ? 'error' : 'good']" x-model="rider[5].value" />
                   <button
                     type="button"
                     class="btn-close"
@@ -189,7 +213,7 @@
                   disabled
                   type="number"
                   id="rideDiffer"
-                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = 200 - $el.value"
+                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = Math.max(200 - $el.value,0)"
                 />
                 <p>Total Time Score</p>
                 <input
@@ -203,7 +227,7 @@
                 <div id="Weight">
                   <p>Weight</p>
                   <div class ="rowEntry">
-                  <input type="number" step="0.1" id="riderEntry" x-model="rider[6].value" :class="rider[6].value == '' ? 'error' : 'good'" />
+                  <input type="number" step="0.1" id="riderEntry" @input="rider[6].confidence=100" :class="[rider[6].confidence > 60 ? '' : 'badPredict', rider[6].value == '' ? 'error' : 'good']" x-model="rider[6].value" />
                   <button
                     type="button"
                     class="btn-close"
@@ -223,7 +247,7 @@
                   disabled
                   type="number"
                   id="weightDiffer"
-                  @winnerweight.window="$el.value = Math.abs((rider[6].value - event.detail).toFixed()); secCScore = 100- $el.value/2;"
+                  @winnerweight.window="$el.value = Math.abs((rider[6].value - event.detail).toFixed()); secCScore = Math.max(100- $el.value/2, 0);"
                 />
                 <p>Total Weight Score</p>
                 <input
@@ -268,7 +292,6 @@
     const rideWeightHandler = () => {
       rideWeight = Math.max(...[...document.querySelectorAll("[id='Weight'] > div >input")].map(a=>a.value))
       window.dispatchEvent(new CustomEvent("winnerweight",{detail:rideWeight}))
-      console.log(rideWeight)
     }
 
     var rideWinner = Number.MAX_SAFE_INTEGER
@@ -296,10 +319,11 @@
     )
 
     async function newData(id){
-      const spinner = document.querySelector('#navcard'+id+' > #uploadspinner')
+      const spinner = document.querySelector('#navcard'+id+' #uploadspinner')
       spinner.style['display']='block'
-      temp = new FormData(document.querySelector('#modalForm'));
+      temp = new FormData(document.querySelector('#modalForm'))
       temp.set('files',document.querySelector('#tempUpload').files[0])
+      document.querySelector('#blueink:checked') == null ? '' : temp.set('blueink','on')
       var response = await fetch('{% url 'replaceCard' %}',{
         method: 'POST',
         headers : {
@@ -312,15 +336,7 @@
       return response.json()
     }
 
-    document.querySelectorAll('.form-container').forEach(cardEl => {
-      cardEl.querySelectorAll('#riderEntry').forEach(inputEl => {
-        if(inputEl.classList.contains('error')){
-          console.log(inputEl)
-          console.log(cardEl.getAttribute('data-index'))
-          document.querySelector('#navcard'+cardEl.getAttribute('data-index')).classList.add('error')
-        }
-      })
-    })
+    
 
     var biggestScore = 0;
     var lastWinner;
@@ -331,12 +347,25 @@
         const tempNum = el.value
         if(Number(tempNum) >= Number(lastWinner.value)){
           lastWinner.closest('form').classList.remove('winner')
+          const oldIndex = lastWinner.closest('.form-container')
+          document.querySelector('#navcard'+oldIndex.getAttribute('data-index')).classList.remove('winner')
           lastWinner = el
           el.closest('form').classList.add('winner')
+          const newIndex = el.closest('.form-container')
+          document.querySelector('#navcard'+newIndex.getAttribute('data-index')).classList.add('winner')
           biggestScore = tempNum
         }
       })
-      
+
+      document.querySelectorAll('.form-container').forEach(cardEl => {
+        const header = document.querySelector('#navcard'+cardEl.getAttribute('data-index'))
+        if(cardEl.querySelectorAll('#riderEntry.error').length == 0) {
+          header.classList.remove("nav-error")
+        }
+        else {
+          header.classList.add("nav-error")
+        }
+      })
     })
 
     {% comment %} [...document.querySelectorAll("[id='Ride Time'] > input")].forEach(el=>

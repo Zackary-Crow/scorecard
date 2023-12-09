@@ -59,9 +59,16 @@
       </div>
       <div class="link-container">
         <a class="link" href="https://www.distanceriding.org/">Home</a>
-        <a class="link" href="#aercImage" onclick="document.querySelector('.overlay').showModal()">How It Works</a>
+        <a class="link" href="#instructions" onclick="document.querySelector('.overlayInstructions').showModal()">How It Works</a>
       </div>
     </header>
+    <dialog class="overlayInstructions" onclick="this.close()">
+      <img
+        id="instructions"
+        class="popupInstructions"
+        src="{% static 'images/instructions.png' %}"
+      />
+    </dialog>
     <div id = "main" hx-swap-oob="outerHTML">
       {% block content %}
       {% endblock %}
