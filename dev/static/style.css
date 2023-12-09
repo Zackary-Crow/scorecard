@@ -193,12 +193,11 @@ img:target, #overlay + img:target{
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 5vh;
+  margin: 5vh 0;
 }
 
 .filebox {
   width: 60%;
-  height: 40%;
   background-color: var(--file-color);
   border: 2px solid #393939;
   display: flex;

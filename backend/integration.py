@@ -41,6 +41,9 @@ def resizeImage(img):
         
         return img
 
+def deNoise(img):
+    return cv2.fastNlMeansDenoising(img, h=7)
+
 def rotateImage(image, angle):
   image_center = tuple(np.array(image.shape[1::-1]) / 2)
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
@@ -66,47 +69,127 @@ def order_points(pts):
     # Return the ordered coordinates.
     return rect.astype('int').tolist()
 
+def segment_by_angle_kmeans(lines, k=2, **kwargs):
+    """Groups lines based on angle with k-means.
+
+    Uses k-means on the coordinates of the angle on the unit circle 
+    to segment `k` angles inside `lines`.
+    """
+
+    # Define criteria = (type, max_iter, epsilon)
+    default_criteria_type = cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER
+    criteria = kwargs.get('criteria', (default_criteria_type, 10, 1.0))
+    flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
+    attempts = kwargs.get('attempts', 10)
+
+    # returns angles in [0, pi] in radians
+    angles = np.array([line[0][1] for line in lines])
+    # multiply the angles by two and find coordinates of that angle
+    pts = np.array([[np.cos(2*angle), np.sin(2*angle)]
+                    for angle in angles], dtype=np.float32)
+
+    # run kmeans on the coords
+    labels, centers = cv2.kmeans(pts, k, None, criteria, attempts, flags)[1:]
+    labels = labels.reshape(-1)  # transpose to row vec
+
+    # segment lines based on their kmeans label
+    segmented = {}
+    for i, line in enumerate(lines):
+        label = labels[i]
+        if label not in segmented:
+            segmented[label] = []
+        segmented[label].append(line)
+    return list(segmented.values())
+
 def findCorners(img):
     timg = img.copy()
     # threshold black and white
+    img = cv2.medianBlur(img, 21)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    T_, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    
-    img = cv2.bilateralFilter(img, 9, 75, 75)
-    
-    # Create black and white image based on adaptive threshold
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 4)
-    
-    # Median filter clears small details
-    img = cv2.medianBlur(img, 11)
-    
-    # Add black border in case that page is touching an image border
-    #img = cv2.copyMakeBorder(img, 5, 5, 5, 5, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+    T_, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    edges = cv2.Canny(img, 200, 250)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    closed = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel, iterations = 10)
 
-    contours, hierarchy = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    # Keeping only the largest detected contour.
-    page = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
+    # plt.imshow(closed)
+    # plt.show()
 
-    con = np.zeros_like(img)
-    # Loop over the contours.
-    for c in page:
-        # Approximate the contour.
-        epsilon = 0.02 * cv2.arcLength(c, True)
-        corners = cv2.approxPolyDP(c, epsilon, True)
-        # If our approximated contour has four points
-        if len(corners) == 4:
-            break
-    cv2.drawContours(con, c, -1, (0, 255, 255), 3)
-    cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
+    conEdge, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-    #for corner in corners:
-        #x, y = corner.ravel()
-        #cv2.circle(img,(int(x),int(y)),50,(36,255,12),-1)
-    #plt.imshow(img)
-    #plt.show()
-    return timg, corners
+    edgeimg = np.zeros_like(closed)
+    #edgeimg = cv2.cvtColor(edgeimg, cv2.COLOR_GRAY2BGR)
+    cv2.drawContours(edgeimg, conEdge, -1, 255, 3) 
+    
+    # plt.imshow(edgeimg)
+    # plt.show()
+    dst = edgeimg.copy()
+    cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
+
+    lines = cv2.HoughLines(dst, 2, np.pi / 360, int(img.shape[0]/4))
+    
+    for line in lines:
+        rho, theta = line[0]
+        a, b = np.cos(theta), np.sin(theta)
+        x0, y0 = a * rho, b * rho
+        n = 1000
+        x1 = int(x0 + n * (-b))
+        y1 = int(y0 + n * (a))
+        x2 = int(x0 - n * (-b))
+        y2 = int(y0 - n * (a))
+
+        cv2.line(cdst, (x1, y1), (x2, y2), (0, 0, 255), 3, cv2.LINE_AA)
+    
+    # plt.imshow(cdst)
+    # plt.show()
+
+    segmented = segment_by_angle_kmeans(lines)
+    def intersection(line1, line2):
+        """Finds the intersection of two lines given in Hesse normal form.
+
+        Returns closest integer pixel locations.
+        See https://stackoverflow.com/a/383527/5087436
+        """
+        rho1, theta1 = line1[0]
+        rho2, theta2 = line2[0]
+        A = np.array([
+            [np.cos(theta1), np.sin(theta1)],
+            [np.cos(theta2), np.sin(theta2)]
+        ])
+        b = np.array([[rho1], [rho2]])
+        x0, y0 = np.linalg.solve(A, b)
+        x0, y0 = int(np.round(x0)), int(np.round(y0))
+        return [[x0, y0]]
+
+
+    def segmented_intersections(lines):
+        """Finds the intersections between groups of lines."""
+
+        intersections = []
+        for i, group in enumerate(lines[:-1]):
+            for next_group in lines[i+1:]:
+                for line1 in group:
+                    for line2 in next_group:
+                        intersections.append(intersection(line1, line2)) 
+
+        return intersections
+    
+    intersections = segmented_intersections(segmented)
+
+    pts = np.array(intersections)[:,0]
+    pts = np.vstack(pts[:])
+    pts = np.float32(pts)
+
+
+    # run kmeans on the coords
+    _, labels, centers = cv2.kmeans(pts, 4, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0), 10, cv2.KMEANS_RANDOM_CENTERS)
+    #labels = labels.reshape(-1)  # transpose to row vec
+    
+    centers = centers.astype(int)
+
+    for c in centers:
+        cv2.circle(cdst,c,10,(0,255,0),-1)
+    
+    return timg, centers
 
 
 def straightenImage(img, corners):
@@ -132,6 +215,8 @@ def straightenImage(img, corners):
 
 def centerImage(img, corners):
     # Sorting the corners and converting them to desired shape.
+    corners = order_points(corners)
+
     pts = corners
 
     (tl, tr, br, bl) = pts
@@ -485,63 +570,13 @@ def findNumbers(glist,img):
 # def findNumbers(group,img):
 # #finds n many numbers inside of box
 
-#     group = sorted(group, key=lambda c: cv2.boundingRect(c)[0])
-#     group.reverse()
-#     # print(f"group size {len(group)}")
-#     # print(cv2.boundingRect(group[0])[0])
-#     if( cv2.boundingRect(group[0])[0] < (600-xval)):
-#         return            
-#     val = len(group)
-#     for i, j in enumerate(group[:-1]):
-#         # print(f"{cv2.boundingRect(j)[0]} - {cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2]} = {cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])}")
-#         if (cv2.boundingRect(j)[0] - (cv2.boundingRect(group[i+1])[0] + cv2.boundingRect(group[i+1])[2])) > 30:
-#             val = i+1
-#             break
-#     # print(f"val {val} group size {len(group)}")
-#     group = group[0:val]
-#     group.reverse()
-#     i=0
-#     groupArr = []
-#     for c in group:
-#         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}\nheight: {cv2.boundingRect(c)[3]}")
-#         if cv2.contourArea(c) < cv2.arcLength(c,True) or (cv2.contourArea(c) <= 200 and cv2.boundingRect(c)[3] < cv2.arcLength(c,True)/3):
-#             continue
-#         x,y,w,h = cv2.boundingRect(c)
-#         finalimg = img[y:y+h,x:x+w]
-#         finalimg = np.pad(finalimg,pad_width=5,mode='constant',constant_values=0)
-#         #finalimg = np.invert(finalimg)
-#         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
-#         #TODO
-#         # plt.imshow(finalimg)
-#         # plt.show()
-#         #makes image MNIST size
-#         finalimg = cv2.resize(finalimg,(28,28))
-#         finalimg = cv2.erode(finalimg, np.ones((2, 2), np.uint8), iterations=1)
-#         (thresh, finalimg) = cv2.threshold(finalimg, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-#         if zeroRowCount(finalimg) > 21:
-#             continue
-#         groupArr.append(finalimg)
-#     if(len(groupArr) == 0):
-#         return
-#     return groupArr
+
 
 def makePrediction(img,model):
     transform = transforms.ToTensor()
     # Transform
     input = transform(img)
-    # s = 2
-    # rolled = torch.roll(input,-s,2) , input, torch.roll(input,s,2) , torch.roll(input,-s,1) , torch.roll(input,s,1)
-    # out = torch.zeros(1, 10)
-    # for r in rolled:
-    #     r = r.unsqueeze(0)
-    #     model.eval()
-    #     with torch.no_grad():
-    #         output = model(r)
-    #     # print(output.shape)
-    #     out = torch.add(out,output)
-    # # print(out)
-    # pred = torch.argmax(out, 1)
-    # return pred.item()
+    
 
     input = input.unsqueeze(0)
     model.eval()
@@ -551,55 +586,6 @@ def makePrediction(img,model):
     prob = torch.nn.functional.softmax(output, 1)
     conf,_ = torch.max(prob,1)
     return conf.item()*100, val.item()
-
-def docFind(imgData):
-    bimg = base64.b64decode(imgData); 
-    npimg = np.fromstring(bimg, dtype=np.uint8); 
-    img = cv2.imdecode(npimg, 1)
-
-    img = resizeImage(img)
-    img, c = findCorners(img)
-    # print(c.dtype)
-    if c is not None:
-        if(cv2.contourArea(c) > (img.shape[0]*img.shape[1])*0.5):
-            img,corners = straightenImage(img,c)
-            img,maxHeight = centerImage(img,corners)
-            img, cnts = findContours(img)
-            img, section = findSections(img, cnts,maxHeight)
-            if len(section) == 6:
-                return True, img, section, maxHeight
-
-    return False, img, [], 0
-
-def afterFind(img,section,maxHeight):
-    predictions = []
-    riderArr = []
-    for i,j in enumerate(section[:-1]):
-        # print(f"section {i}")
-        groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
-        # plt.imshow(sectionImg)
-        # plt.show()
-        groupArr = []
-        for k,group in enumerate(groups):
-            arr = findNumbers(group,sectionImg)
-            if arr == None:
-                continue
-            print(f"group {k} arr size {len(arr)}")
-            item = []
-            for digit in arr:
-                val = makePrediction(digit,model)
-                item.append(val)
-            if len(item) > 3:
-                continue
-            if len(item) == 2:
-                groupArr.append(item[0]+(item[1]/10))
-            else:
-                groupArr.append(sum(d * 10**i for i, d in enumerate(item[::-1])))
-            print(groupArr)
-        riderArr.append(groupArr)
-        
-    return riderArr
-
 ###########################################
 
 # img = cv2.imread("src/python/darkLandscapeScan.jpg")
@@ -610,15 +596,16 @@ def fullProcess(img,blueink=False):
     predictions = []
     try:
         img = resizeImage(img)
-        # debugImg.append(img)
-        # plt.imshow(img)
-        # plt.show()
-        img, c = findCorners(img)
+        img = deNoise(img)
         debugImg.append(img)
         # plt.imshow(img)
         # plt.show()
-        img, corners = straightenImage(img, c)
+        img, corners = findCorners(img)
         debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        #img, corners = straightenImage(img, c)
+        #debugImg.append(img)
         # plt.imshow(img)
         # plt.show()
         img, maxHeight = centerImage(img, corners)
@@ -673,7 +660,8 @@ def fullProcess(img,blueink=False):
         riderArr = fillArr(riderArr.copy())
         print(riderArr)
         return riderArr, debugImg
-    except:
+    except Exception as e:
+        print(e)
         riderArr = fillArr(riderArr.copy())
         return riderArr, debugImg
             
