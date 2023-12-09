@@ -29,7 +29,7 @@ Follow these steps to set up a virtual environment:
 # Install virtualenv package
 pip install virtualenv
 # Create a virtual environment
-virtualenv [path]/[environment name]
+python -m virtualenv [path]/[environment name]
 
 # Activate the virtual environment
 # On Windows 10
