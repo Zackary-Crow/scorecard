@@ -261,12 +261,12 @@ img:target, #overlay + img:target{
   background-color: lightcoral;
 }
 
-#erroricon{
-  display: none
+#erroricon {
+  display: none;
 }
 
 .nav-error #erroricon {
-  display: block
+  display: block;
 }
 
 

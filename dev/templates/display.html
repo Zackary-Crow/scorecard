@@ -213,7 +213,7 @@
                   disabled
                   type="number"
                   id="rideDiffer"
-                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = Math.max(200 - $el.value)"
+                  @winnertime.window="$el.value = Math.abs((rider[5].value - event.detail).toFixed()); secBScore = Math.max(200 - $el.value,0)"
                 />
                 <p>Total Time Score</p>
                 <input
@@ -319,9 +319,9 @@
     )
 
     async function newData(id){
-      const spinner = document.querySelector('#navcard'+id+' > #uploadspinner')
+      const spinner = document.querySelector('#navcard'+id+' #uploadspinner')
       spinner.style['display']='block'
-      temp = new FormData(document.querySelector('#modalForm'));
+      temp = new FormData(document.querySelector('#modalForm'))
       temp.set('files',document.querySelector('#tempUpload').files[0])
       document.querySelector('#blueink:checked') == null ? '' : temp.set('blueink','on')
       var response = await fetch('{% url 'replaceCard' %}',{
@@ -359,10 +359,12 @@
 
       document.querySelectorAll('.form-container').forEach(cardEl => {
         const header = document.querySelector('#navcard'+cardEl.getAttribute('data-index'))
-        if(cardEl.querySelectorAll('#riderEntry.error').length == 0)
+        if(cardEl.querySelectorAll('#riderEntry.error').length == 0) {
           header.classList.remove("nav-error")
-        else
+        }
+        else {
           header.classList.add("nav-error")
+        }
       })
     })
 
