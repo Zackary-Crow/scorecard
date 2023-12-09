@@ -241,6 +241,85 @@ def zeroRowCount(img):
 
     return count
 
+def computeSectionBlue(left,right,maxHeight,img):
+
+    originImg = img.copy()
+
+    pts = [ [left,0],[left,maxHeight],[right,maxHeight],[right,0] ]
+    newBound = [ [0,0],[0,2000],[1000,2000],[1000,0] ]
+    M = cv2.getPerspectiveTransform(np.float32(pts), np.float32(newBound))
+    # Perspective transform using homography.
+    sectionImg = cv2.warpPerspective(img, M, (1000,2000), flags=cv2.INTER_LINEAR)
+    # plt.imshow(sectionImg)
+    # plt.show()
+    filterImg = np.copy(sectionImg)
+
+    hsv = cv2.cvtColor(filterImg, cv2.COLOR_RGB2HSV)
+    # plt.imshow(hsv)
+    # plt.show()
+    # define range of blue color in HSV
+    lower_blue = np.array([100,5,90])
+    upper_blue = np.array([150,100,170])
+    # Threshold the HSV image to get only blue colors
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    # Bitwise-AND mask and original image
+    filter_output = cv2.bitwise_and(filterImg,filterImg, mask= mask)
+
+    # plt.imshow(hsv)
+    # plt.show()
+
+
+    cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+    for c in cnts:
+        cv2.drawContours(filterImg, [c], -1, (255,255,255), 2)
+
+    # plt.imshow(filterImg)
+    # plt.show()
+
+    # Repair image
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+    morphOP = filter_output.copy()
+    # morphOP = cv2.morphologyEx(morphOP, cv2.MORPH_OPEN, kernel)
+    morphOP = cv2.morphologyEx(morphOP, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+    res = cv2.cvtColor(morphOP,cv2.COLOR_BGR2GRAY)
+    _,filterth = cv2.threshold(res, 200, 255, cv2.THRESH_OTSU)
+    # gray = cv2.cvtColor(sectionImg,cv2.COLOR_BGR2GRAY)
+    # _,sectionth = cv2.threshold(gray, 200, 255, cv2.THRESH_OTSU + cv2.THRESH_TOZERO_INV)
+
+    prossImg = filterth[np.r_[600:900,1100:1200,1500:1600],xval:950]
+    # actualImg = sectionth[np.r_[600:900,1100:1200,1500:1600],xval:950]
+    
+
+    contours, hierarchy = cv2.findContours(prossImg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    list = []
+    grouped = [None]
+    sortcontours = sorted(contours, key=lambda c: cv2.boundingRect(c)[1])
+    for c in contours:
+        if( cv2.contourArea(c) > cv2.arcLength(c,True)):
+            x,y,w,h = cv2.boundingRect(c)
+            list.append((c,y,y+h))
+    # print(f"list size {len(list)}")
+    index = 0
+    # for l in list:
+        # print(str(l[1])+" "+str(l[2]))
+    for i, j in enumerate(list[:-1]):
+        if grouped[index] == None:
+            grouped[index] = [j[0]]
+        if (j[1] <= list[i+1][2] and j[1] >= list[i+1][1]) or (j[2] <= list[i+1][2] and j[2] >= list[i+1][1]):
+            grouped[index].append(list[i+1][0])
+            # print(f"{list[i+1][1]},{list[i+1][2]} added to {j[1]},{j[2]} with index {index}")
+        else:
+            grouped.append(None)
+            index += 1
+    if grouped[index] == None and list != None:
+        grouped[index] = [list[-1][0]]
+    grouped.reverse()
+    return grouped,prossImg
+
 def computeSection(left,right,maxHeight,img):
 
     pts = [ [left,0],[left,maxHeight],[right,maxHeight],[right,0] ]
@@ -251,16 +330,16 @@ def computeSection(left,right,maxHeight,img):
     # plt.imshow(sectionImg)
     # plt.show()
     filterImg = np.copy(sectionImg)
+
+    
     graySection = cv2.cvtColor(filterImg,cv2.COLOR_BGR2GRAY)
     _,thresh = cv2.threshold(graySection, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25,1))
-    detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+    filter_output = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+    
 
-    # plt.imshow(detected_lines)
-    # plt.show()
-
-    cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(filter_output, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     for c in cnts:
         cv2.drawContours(filterImg, [c], -1, (255,255,255), 2)
@@ -287,7 +366,7 @@ def computeSection(left,right,maxHeight,img):
         if( cv2.contourArea(c) > cv2.arcLength(c,True)):
             x,y,w,h = cv2.boundingRect(c)
             list.append((c,y,y+h))
-    print(f"list size {len(list)}")
+    # print(f"list size {len(list)}")
     index = 0
     # for l in list:
         # print(str(l[1])+" "+str(l[2]))
@@ -307,6 +386,7 @@ def computeSection(left,right,maxHeight,img):
 
 def findNumbers(glist,img):
 #finds n many numbers inside of box
+    fullSize = []
     width = img.shape[1]
     height = img.shape[0]
     glist = sorted(glist, key=lambda c: cv2.boundingRect(c)[0])
@@ -315,7 +395,7 @@ def findNumbers(glist,img):
     #plt.imshow(img)
     #plt.show()
     if( cv2.boundingRect(glist[0])[0] < (600-xval)):
-        return 
+        return None, None
     val = len(glist)
 
     #print(cv2.boundingRect(glist[val-1])[0])
@@ -377,6 +457,7 @@ def findNumbers(glist,img):
 
         finalimg = padToSquare(finalimg)
         
+        fullSize.append(finalimg)
         #finalimg = np.invert(finalimg)
         # print(f"contour area: {cv2.contourArea(c)}\ncontour perimeter: {cv2.arcLength(c,True)}")
 
@@ -396,8 +477,8 @@ def findNumbers(glist,img):
         #plt.show()
         groupArr.append(finalimg)
     if len(groupArr) == 0:
-        return None
-    return groupArr
+        return None, None
+    return groupArr, fullSize
             # cv2.imwrite('python/generated/img'+str(i)+'.png',finalimg)
             # i+=1
 
@@ -448,28 +529,28 @@ def makePrediction(img,model):
     transform = transforms.ToTensor()
     # Transform
     input = transform(img)
-    s = 2
-    rolled = torch.roll(input,-s,2) , input, torch.roll(input,s,2) , torch.roll(input,-s,1) , torch.roll(input,s,1)
-    # print(input.shape)
-    # unsqueeze batch dimension, in case you are dealing with a single image
-    out = torch.zeros(1, 10)
-    for r in rolled:
-        r = r.unsqueeze(0)
-        model.eval()
-        with torch.no_grad():
-            output = model(r)
-        # print(output.shape)
-        out = torch.add(out,output)
-    print(out)
-    pred = torch.argmax(out, 1)
-    return pred.item()
-
-    # input = input.unsqueeze(0)
-    # model.eval()
-    # with torch.no_grad():
-    #     output = model(input)
-    # pred = torch.argmax(output, 1)
+    # s = 2
+    # rolled = torch.roll(input,-s,2) , input, torch.roll(input,s,2) , torch.roll(input,-s,1) , torch.roll(input,s,1)
+    # out = torch.zeros(1, 10)
+    # for r in rolled:
+    #     r = r.unsqueeze(0)
+    #     model.eval()
+    #     with torch.no_grad():
+    #         output = model(r)
+    #     # print(output.shape)
+    #     out = torch.add(out,output)
+    # # print(out)
+    # pred = torch.argmax(out, 1)
     # return pred.item()
+
+    input = input.unsqueeze(0)
+    model.eval()
+    with torch.no_grad():
+        output = model(input)
+    val = torch.argmax(output)
+    prob = torch.nn.functional.softmax(output, 1)
+    conf,_ = torch.max(prob,1)
+    return conf.item()*100, val.item()
 
 def docFind(imgData):
     bimg = base64.b64decode(imgData); 
@@ -522,61 +603,96 @@ def afterFind(img,section,maxHeight):
 ###########################################
 
 # img = cv2.imread("src/python/darkLandscapeScan.jpg")
-def fullProcess(img):
+def fullProcess(img,blueink=False):
 
-    img = resizeImage(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, c = findCorners(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, corners = straightenImage(img, c)
-    # plt.imshow(img)
-    # plt.show()
-    img, maxHeight = centerImage(img, corners)
-    # plt.imshow(img)
-    # plt.show()
-    img, cnts = findContours(img)
-    # plt.imshow(img)
-    # plt.show()
-    img, section = findSections(img, cnts)
-    # plt.imshow(img)
-    # plt.show()
-    print(section)
-    # plt.imshow(img)
-    # plt.show()
-    predictions = []
+    debugImg = []
     riderArr = []
-    for i,j in enumerate(section[:-1]):
-        # print(f"section {i}")
-        groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
-        # plt.imshow(sectionImg)
+    predictions = []
+    try:
+        img = resizeImage(img)
+        # debugImg.append(img)
+        # plt.imshow(img)
         # plt.show()
-        groupArr = []
-        for k,group in enumerate(groups):
-            arr = findNumbers(group,sectionImg)
-            if arr == None:
-                continue
-            print(f"group {k} arr size {len(arr)}")
-            item = []
-            for digit in arr:
-                val = makePrediction(digit,model)
-                item.append(val)
-            if len(item) > 3:
-                continue
-            if len(item) == 2:
-                groupArr.append({"value":item[0]+(item[1]/10)})
+        img, c = findCorners(img)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, corners = straightenImage(img, c)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, maxHeight = centerImage(img, corners)
+        # debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, cnts = findContours(img)
+        # debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        img, section = findSections(img, cnts)
+        debugImg.append(img)
+        # plt.imshow(img)
+        # plt.show()
+        # plt.imshow(img)
+        # plt.show()
+        
+        for i,j in enumerate(section[:-1]):
+            # print(f"section {i}")
+            if(blueink):
+                groups, sectionImg = computeSectionBlue(section[i],section[i+1],maxHeight,img)
             else:
-                groupArr.append({"value":sum(d * 10**i for i, d in enumerate(item[::-1]))})
-            print(groupArr)
-        riderArr.append(groupArr)
+                groups, sectionImg = computeSection(section[i],section[i+1],maxHeight,img)
+
+            debugImg.append(sectionImg)
+            # plt.imshow(sectionImg)
+            # plt.show()
+            groupArr = []
+            for k,group in enumerate(groups):
+                arr,fullDebug = findNumbers(group,sectionImg)
+                if arr == None:
+                    continue
+                item = []
+                for digit, fullDigit in zip(arr,fullDebug):
+                    debugImg.append(fullDigit)
+                    conf, val = makePrediction(digit,model)
+                    print(val, conf)
+                    item.append([val,conf])
+                if len(item) > 3:
+                    continue
+                if len(item) == 2:
+                    if(item[0][0] == 1 and item[1][0] == 0):
+                        groupArr.append({"value":10,"confidence":min(item[0][1],item[1][1])})
+                    else:    
+                        groupArr.append({"value":item[0][0]+(item[1][0]/10),"confidence":min(item[0][1],item[1][1])})
+                else:
+                    groupArr.append({"value":sum(d[0] * 10**i for i, d in enumerate(item[::-1])),"confidence":min(d[1] for d in item)})
+                print(groupArr[-1])
+                # print(groupArr)
+            riderArr.append(groupArr)
         
-    
-    return riderArr
-        
+        riderArr = fillArr(riderArr.copy())
+        print(riderArr)
+        return riderArr, debugImg
+    except:
+        riderArr = fillArr(riderArr.copy())
+        return riderArr, debugImg
+            
+def fillArr(temp): 
+    for group in temp:
+        if(len(group) > 7):
+            break
+        while(len(group) <= 7):
+            group.append({"value":'',"confidence":100})
 
+    while(len(temp) < 5):
+        gTemp = []
+        for i in range(7):
+            gTemp.append({"value":'',"confidence":100})
+        temp.append(gTemp)
 
-###########################################
+    return temp
 
-    # plt.imshow(img)
-    # plt.show()
+    ###########################################
+
+        # plt.imshow(img)
+        # plt.show()

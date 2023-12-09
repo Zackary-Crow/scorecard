@@ -11,13 +11,15 @@ body {
   --banner-color: #393939;
   --link-color: #7DA582;
   --text-color : #000;
+  --file-color : #ffffff;
 }
 
 .dark-mode {
   --background-color: #393939;
   --banner-color: #F0EBE5;
+  --link-color: #000;
   --text-color: #7DA582;
-  --text-color: #7DA582;
+  --file-color : #F0EBE5;
 }
 
 body::before {
@@ -48,6 +50,7 @@ body::before {
 .logoNtitle {
   display: flex;
   align-items: center;
+  height: 100%;
 }
 
 .banner p {
@@ -96,6 +99,14 @@ body::before {
   margin-right: 3vw;
 }
 
+#light-dark {
+  border-radius: 10px;
+  width: 135px;
+  height: 45px;
+  font-size: 20px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
 .miniheader {
   color: var(--text-color);
   font-family: Roboto Flex;
@@ -128,6 +139,13 @@ body::before {
 .overlay{
   max-width: 80vw;
   max-height: 80vh;
+  background-color: #393939;
+}
+
+.overlayInstructions{
+  max-width: 80vw;
+  max-height: 80vh;
+  background-color: #393939;
 }
 
 .popupImg
@@ -140,7 +158,24 @@ body::before {
   border:5px solid #cccccc;
   border-radius:10px;
 }
+
 .popupImg:target{
+  display:block;
+  opacity:2;
+}
+
+.popupInstructions
+{
+  height: 100%;
+  width: 100%;
+  margin:0 auto;
+  position:relative;
+  display:none;
+  border:5px solid #cccccc;
+  border-radius:10px;
+}
+
+.popupInstructions:target{
   display:block;
   opacity:2;
 }
@@ -158,25 +193,27 @@ img:target, #overlay + img:target{
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 5vh;
 }
 
 .filebox {
   width: 60%;
   height: 40%;
-  background-color: #ffffff;
+  background-color: var(--file-color);
   border: 2px solid #393939;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 30px;
+  padding-bottom: 0px;
 }
 
 .dottedfill {
   position: relative;
   width: 100%;
-  height: 100%;
-  background-color: #fff;
+  height: 25vh;
+  background-color: var(--file-color);
   border: 2px dashed #0F6FFF;
   display: flex;
   justify-content: center;
@@ -206,7 +243,7 @@ img:target, #overlay + img:target{
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
-  background-color: #fff;
+  background-color: var(--file-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -220,7 +257,20 @@ img:target, #overlay + img:target{
   flex-wrap: wrap;
 }
 
-#uploadButton, #photoButton {
+.badPredict {
+  background-color: lightcoral;
+}
+
+#erroricon {
+  display: none;
+}
+
+.nav-error #erroricon {
+  display: block;
+}
+
+
+#uploadButton, #photoButton, .replaceButton {
   position: relative;
   display: inline-flex;
   height: 54px;
@@ -236,10 +286,6 @@ img:target, #overlay + img:target{
   text-decoration: none;
   justify-content: center;
   margin: 5px;
-}
-
-#uploadButton {
-  margin-top: 30px;
 }
 
 #camera-modal {
@@ -314,12 +360,6 @@ h3 {
   border-top: none;
 }
 
-#form-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 #form {
   padding-left: 25px;
   width: 20%;
@@ -349,31 +389,21 @@ h3 {
   border-bottom: 2px solid #000;
 }
 
-.tab {
-  width: 75%;
-  height: 40%;
-  overflow: hidden;
-  border: 2px solid #000;
-  background-color: #f1f1f1;
+#uploadspinner {
+  display: none;
 }
 
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  border-right: 2px solid #000;
+.htmx-indicator {
+  opacity:0;
+  transition: opacity 500ms ease-in;
 }
 
-.tab button:hover {
-  background-color: #393939;
+.htmx-request .htmx-indicator {
+  opacity:1;
 }
 
-.tab button.active {
-  background-color: #7DA582;
+.htmx-request.htmx-indicator {
+  opacity:1;
 }
 
 .tab-content {
@@ -386,7 +416,7 @@ h3 {
   border-top: none;
 }
 
-#form-container {
+.form-container {
   display: flex;
   justify-content: space-between;
   padding: 5px;
@@ -399,22 +429,23 @@ h3 {
   border-left: 1px solid #000;
 }
 
-/* causing issue on display page
-form p {
-  display: inline-block;
-}*/
-
-.fileList{
-  display:inline-block
+.fileList {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-#error {
+.error {
   background-color: yellow;
 }
 
-.previewImg img { display: none; }
-.previewImg p:hover ~ img { display: block; }
-.previewImg img:hover { display: block; }
+.previewImg {
+    flex: 0 0 calc(33.33% - 10px);
+    margin: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    text-wrap: nowrap;
+}
 
 li {
   display: flex;
@@ -426,6 +457,25 @@ li {
 p {
   font-weight: bold;
   font-size: 20px;
+  margin: 0px;
+}
+
+.winner {
+  background-color: rgba(77, 255, 37, 0.495);
+}
+
+.rowEntry {
+  display:flex;
+}
+
+#ex {
+  font-size: 18px;
+  text-wrap: nowrap;
+}
+
+.popover{
+  max-width: 25vw;
+  max-height: 25vh;
 }
 
 #ex {
@@ -463,9 +513,24 @@ p {
   body::before {
     background-image: unset;
   }
+
+  body {
+    background-image: url('../static/images/sedraname.png');
+    background-size: cover;
+    background-position: center bottom 3%;
+    background-repeat: no-repeat;
+    background-size: 75%;
+    margin-bottom: 100px;
+  }
+
+  .footer {
+    height: 100px;
+    background-color: transparent;
+  }
 }
 
 @media (max-width: 1000px) {
+
   .banner {
     width: 100vw;
   }
@@ -493,34 +558,12 @@ p {
     transform: translate(-50%, 0);
   }
 
-  #ex {
-    font-size: max(18px, 2vw);
-    text-wrap: wrap;
-  }
-
   .filebox-container {
     height: 50vh;
   }
 
   .filebox {
     width: 75%;
-    height: 50vh;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .dottedfill {
-    height: 50%;
-  }
-
-  #uploadButton, #photoButton {
-    font-size: 3vw;
-    width: 25vw;
-    height: 5vh;
-  }
-
-  #uploadButton {
-    margin-top: 2vh;
   }
 }
 
