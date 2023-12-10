@@ -102,6 +102,7 @@ def segment_by_angle_kmeans(lines, k=2, **kwargs):
     return list(segmented.values())
 
 def findCorners(img):
+    orgimg = img.copy()
     timg = img.copy()
     # threshold black and white
     img = cv2.medianBlur(img, 21)
@@ -123,7 +124,6 @@ def findCorners(img):
     # plt.imshow(edgeimg)
     # plt.show()
     dst = edgeimg.copy()
-    cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
 
     lines = cv2.HoughLines(dst, 2, np.pi / 360, int(img.shape[0]/4))
     
@@ -137,7 +137,7 @@ def findCorners(img):
         x2 = int(x0 - n * (-b))
         y2 = int(y0 - n * (a))
 
-        cv2.line(cdst, (x1, y1), (x2, y2), (0, 0, 255), 3, cv2.LINE_AA)
+        cv2.line(timg, (x1, y1), (x2, y2), (0, 0, 255), 3, cv2.LINE_AA)
     
     # plt.imshow(cdst)
     # plt.show()
@@ -187,9 +187,9 @@ def findCorners(img):
     centers = centers.astype(int)
 
     for c in centers:
-        cv2.circle(cdst,c,10,(0,255,0),-1)
+        cv2.circle(timg,c,25,(0,255,0),-1)
     
-    return timg, centers
+    return orgimg, centers, timg
 
 
 def straightenImage(img, corners):
@@ -600,8 +600,8 @@ def fullProcess(img,blueink=False):
         debugImg.append(img)
         # plt.imshow(img)
         # plt.show()
-        img, corners = findCorners(img)
-        debugImg.append(img)
+        img, corners, dimg = findCorners(img)
+        debugImg.append(dimg)
         # plt.imshow(img)
         # plt.show()
         #img, corners = straightenImage(img, c)
@@ -609,11 +609,11 @@ def fullProcess(img,blueink=False):
         # plt.imshow(img)
         # plt.show()
         img, maxHeight = centerImage(img, corners)
-        # debugImg.append(img)
+        debugImg.append(img)
         # plt.imshow(img)
         # plt.show()
         img, cnts = findContours(img)
-        # debugImg.append(img)
+        debugImg.append(img)
         # plt.imshow(img)
         # plt.show()
         img, section = findSections(img, cnts)
