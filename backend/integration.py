@@ -32,11 +32,11 @@ def padToSquare(img):
         return cv2.copyMakeBorder(img, padding, padding, 0, 0, cv2.BORDER_CONSTANT, None, value = 0)
 # resize image to height 2048
 def resizeImage(img):
-        if img.shape[0] <= 1024:
+        if img.shape[0] <= 2048:
               return img
         
-        width = int(img.shape[1] * round(1024 / img.shape[0], 3))
-        dim = (width, 1024)
+        width = int(img.shape[1] * round(2048 / img.shape[0], 3))
+        dim = (width, 2048)
         img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA) 
         
         return img
